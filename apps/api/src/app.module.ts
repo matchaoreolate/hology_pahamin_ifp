@@ -6,6 +6,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GeminiModule } from './modules/gemini/gemini.module';
 import { GeneratorModule } from './modules/generator/generator.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { GeneratorModule } from './modules/generator/generator.module';
     AuthModule,
     GeminiModule,
     GeneratorModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
