@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 build/
+*.tsbuildinfo
 
 # Vite
 .vite/
@@ -33,3 +34,6 @@ Thumbs.db
 
 # Testing
 coverage/
+
+# Docker
+docker-compose.override.yml
