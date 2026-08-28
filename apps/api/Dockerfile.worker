@@ -1,0 +1,29 @@
+# =============================================
+# PahamIn Celery Worker — Dockerfile
+# Same base as API, different CMD
+# =============================================
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . .
+
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir .
+
+
+RUN useradd -m -u 1000 pahamin && chown -R pahamin:pahamin /app
+USER pahamin
+
+# Celery worker: processes "generate" queue, 2 concurrent workers
+CMD ["celery", "-A", "app.tasks.celery_app", "worker", \
+     "--loglevel=info", \
+     "--queues=generate", \
+     "--concurrency=2", \
+     "--hostname=worker@%h"]

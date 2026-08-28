@@ -1,45 +1,127 @@
 services:
-  # ─────────────────────────────────────────────
-  # PostgreSQL Database
-  # ─────────────────────────────────────────────
-  db:
-    image: postgres:16-alpine
-    container_name: pahamin_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: pahamin
-      POSTGRES_PASSWORD: pahamin123
-      POSTGRES_DB: pahamin_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pahamin -d pahamin_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ─────────────────────────────────────────────
-  # PahamIn Backend API
-  # ─────────────────────────────────────────────
+  # ── FastAPI Backend ──────────────────────
   api:
     build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+      context: ./apps/api
+      dockerfile: Dockerfile
     container_name: pahamin_api
-    restart: unless-stopped
     env_file:
-      - apps/api/.env
+      - ./apps/api/.env
     ports:
-      - "3001:3001"
+      - "8000:8000"
     environment:
-      PORT: 3001
-      NODE_ENV: production
-      DATABASE_URL: "postgresql://pahamin:pahamin123@db:5432/pahamin_db?schema=public"
+      - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/app:/app/app               # Hot reload in dev
+      - ./apps/api/tests:/app/tests           # Test files live sync
+      - ./apps/api/migrations:/app/migrations # Alembic migrations sync
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+
+  # ── Celery Worker ────────────────────────
+  worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.worker
+    container_name: pahamin_worker
+    env_file:
+      - ./apps/api/.env
+    environment:
+      - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/app:/app/app   # Hot reload in dev
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+
+  # ── PostgreSQL 16 ────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: pahamin_db
+    ports:
+      - "5432:5432"     # Expose for local dev tools (DBeaver, etc.)
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pahamin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pahamin_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-pahamin_db}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./apps/api/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pahamin} -d ${POSTGRES_DB:-pahamin_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+
+  # ── Redis 7 ─────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: pahamin_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+
+  # ── Flower (Celery Monitor) ──────────────
+  flower:
+    image: mher/flower:2.0
+    container_name: pahamin_flower
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - FLOWER_BASIC_AUTH=admin:pahamin123
+    depends_on:
+      - redis
+      - worker
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+    profiles:
+      - dev
 
 volumes:
-  postgres_data:
+  pg_data:
+    name: pahamin_pg_data
+  redis_data:
+    name: pahamin_redis_data
+
+networks:
+  pahamin_net:
+    name: pahamin_network
+    driver: bridge

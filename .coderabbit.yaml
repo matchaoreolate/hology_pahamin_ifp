@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "id-ID" # Bot akan memberikan feedback dalam Bahasa Indonesia
+tone_instructions: "Berikan review yang konstruktif, fokus pada Clean Architecture, NestJS best practices, keamanan data, dan performa query."
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false # Matikan puisi di akhir review
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "master"
+      - "develop"
+
+chat:
+  auto_reply: true

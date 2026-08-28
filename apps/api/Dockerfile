@@ -1,59 +1,53 @@
-# ─────────────────────────────────────────────
-# Stage 1: Builder
-# ─────────────────────────────────────────────
-FROM node:22-alpine AS builder
+# =============================================
+# PahamIn API — Dockerfile
+# Multi-stage: builder + slim production image
+# =============================================
 
-# Install pnpm
-RUN npm install -g pnpm
-
-WORKDIR /app
-
-# Copy workspace manifests (root level)
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-
-# Copy all package.json files first for layer caching
-COPY apps/api/package.json ./apps/api/
-COPY packages/shared/package.json ./packages/shared/
-
-# Install all deps
-RUN pnpm install --frozen-lockfile
-
-# Copy source
-COPY apps/api ./apps/api
-COPY packages/shared ./packages/shared
-
-# Generate Prisma client
-RUN pnpm --filter @pahamin/api exec prisma generate
-
-# Build NestJS
-RUN pnpm --filter @pahamin/api build
-
-# ─────────────────────────────────────────────
-# Stage 2: Production Runner
-# ─────────────────────────────────────────────
-FROM node:22-alpine AS runner
-
-RUN npm install -g pnpm
+# --- Stage 1: Builder ---
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Copy workspace manifests
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/api/package.json ./apps/api/
-COPY packages/shared/package.json ./packages/shared/
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install production deps only
-RUN pnpm install --frozen-lockfile --prod
+# Copy ALL source first (hatchling needs app/ to be present)
+COPY . .
 
-# Copy built output and prisma schema
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0 \
-     ./node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir ".[dev]" aiosqlite
 
-WORKDIR /app/apps/api
 
-EXPOSE 3001
+# --- Stage 2: Production ---
+FROM python:3.11-slim AS production
 
-# Run migrations then start app
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+WORKDIR /app
+
+# Runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY . .
+
+# Create non-root user for security
+RUN useradd -m -u 1000 pahamin && chown -R pahamin:pahamin /app
+USER pahamin
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
