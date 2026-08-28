@@ -3,9 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "dev": "concurrently -n web,api -c blue,green \"pnpm --filter @pahamin/web dev\" \"pnpm --filter @pahamin/api start:dev\"",
+    "dev": "pnpm --filter @pahamin/web dev",
     "dev:web": "pnpm --filter @pahamin/web dev",
-    "dev:api": "pnpm --filter @pahamin/api start:dev"
+    "build:web": "pnpm --filter @pahamin/web build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
