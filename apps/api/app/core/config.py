@@ -58,6 +58,12 @@ class Settings(BaseSettings):
     GEMINI_MAX_OUTPUT_TOKENS: int = 8192
     GEMINI_TEMPERATURE: float = 0.7
 
+    # --- Storage (Supabase) ---
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_BUCKET: str = "presentation-assets"
+
+
 
 @lru_cache
 def get_settings() -> Settings:
