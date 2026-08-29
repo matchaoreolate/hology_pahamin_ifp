@@ -5,56 +5,89 @@ export interface Asset {
   alt?: string;
 }
 
+export interface InteractionFeedback {
+  correct: string;
+  incorrect: string;
+}
+
 export interface ChoiceOption {
   id: string;
   label: string;
-  isCorrect: boolean;
 }
 
 export interface ChoiceInteraction {
   type: "choice";
-  id: string;
-  prompt: string;
+  instruction: string;
   options: ChoiceOption[];
+  correct_answer: string;
+  feedback: InteractionFeedback;
+}
+
+export interface MatchingItem {
+  id: string;
+  label: string;
 }
 
 export interface MatchingPair {
   id: string;
-  left: string;
-  right: string;
+  left: MatchingItem;
+  right: MatchingItem;
 }
 
 export interface MatchingInteraction {
   type: "matching";
-  id: string;
-  prompt: string;
+  instruction: string;
   pairs: MatchingPair[];
+  feedback: InteractionFeedback;
+}
+
+export interface SortingCategory {
+  id: string;
+  label: string;
 }
 
 export interface SortingItem {
   id: string;
   label: string;
+  correct_category: string;
 }
 
 export interface SortingInteraction {
   type: "sorting";
+  instruction: string;
+  categories: SortingCategory[];
+  items: SortingItem[];
+  feedback: InteractionFeedback;
+}
+
+export interface RevealItem {
   id: string;
-  prompt: string;
-  correctOrder: SortingItem[];
+  label: string;
+  revealed_content: string;
+  asset?: Asset;
 }
 
 export interface RevealInteraction {
   type: "reveal";
-  id: string;
-  prompt: string;
-  hiddenContent: string;
+  instruction?: string;
+  items: RevealItem[];
+}
+
+export interface DragDropInteraction {
+  type: "drag_drop";
+  instruction: string;
+  items: MatchingItem[];
+  targets: MatchingItem[];
+  answers: { item_id: string; target_id: string }[];
+  feedback: InteractionFeedback;
 }
 
 export type Interaction =
   | ChoiceInteraction
   | MatchingInteraction
   | SortingInteraction
-  | RevealInteraction;
+  | RevealInteraction
+  | DragDropInteraction;
 
 export type SlideType =
   | "opening"
