@@ -13,5 +13,7 @@ allowBuilds:
   protobufjs: true
   unrs-resolver: true
   workerd: true
+minimumReleaseAge: 0m
 minimumReleaseAgeExclude:
   - '@rolldown/binding-openharmony-arm64@1.2.6'
+
