@@ -82,7 +82,13 @@ async def test_output_edit_runtime_and_feedback(client: AsyncClient, db_session:
     assert runtime_res.json()["mode"] == "interactive_tv"
     assert runtime_res.json()["ifp_settings"]["optimized_for"] == "interactive_flat_panel"
 
-    # 4. Test POST /feedback
+    # 4. Test GET /public/presentations/{project_id} (No Auth required for IFP)
+    public_res = await client.get(f"/api/v1/public/presentations/{proj_id}")
+    assert public_res.status_code == 200
+    assert "artifact" in public_res.json()
+    assert public_res.json()["project_id"] == proj_id
+
+    # 5. Test POST /feedback
     fb_res = await client.post(
         f"/api/v1/projects/{proj_id}/feedback",
         json={
@@ -94,3 +100,4 @@ async def test_output_edit_runtime_and_feedback(client: AsyncClient, db_session:
     )
     assert fb_res.status_code == 200
     assert fb_res.json()["feedback"]["rating"] == 5
+

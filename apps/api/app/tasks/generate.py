@@ -7,13 +7,12 @@ import uuid
 from datetime import datetime, timezone
 
 from celery import group
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 
 from app.core.logging import get_logger
 from app.db.base import AsyncSessionLocal
-from app.models.generated_output import GeneratedOutput
-from app.models.media_project import MediaProject
+from app.repositories.output_repository import OutputRepository
+from app.repositories.project_repository import ProjectRepository
+from app.schemas.presentation_artifact import PresentationArtifact
 from app.services.ai.gemini_service import gemini_service
 from app.services.prompts.context_builder import LearningContextData
 from app.services.prompts.ebook_prompt import build_ebook_prompt
@@ -23,6 +22,12 @@ from app.tasks.celery_app import celery_app
 from app.tasks.pipeline import fetch_project_for_generation, update_final_project_status
 
 logger = get_logger(__name__)
+
+_PROMPT_BUILDERS = {
+    "presentation": build_presentation_prompt,
+    "lkpd": build_lkpd_prompt,
+    "ebook": build_ebook_prompt,
+}
 
 
 def run_async(coro):
@@ -42,14 +47,15 @@ def generate_all_outputs_task(self, project_id: str):
         if not project:
             return
 
-        tasks = []
-        if "presentation" in selected:
-            tasks.append(generate_presentation_task.s(project_id, config.get("presentation", {})))
-        if "lkpd" in selected:
-            tasks.append(generate_lkpd_task.s(project_id, config.get("lkpd", {})))
-        if "ebook" in selected:
-            tasks.append(generate_ebook_task.s(project_id, config.get("ebook", {})))
-
+        tasks = [
+            _task.s(project_id, config.get(key, {}))
+            for key, _task in [
+                ("presentation", generate_presentation_task),
+                ("lkpd", generate_lkpd_task),
+                ("ebook", generate_ebook_task),
+            ]
+            if key in selected
+        ]
         if tasks:
             group(tasks).apply_async().get(timeout=300, propagate=False)
 
@@ -79,31 +85,16 @@ async def _generate_output(project_id: str, output_type: str, config: dict):
     val_id = uuid.UUID(str(project_id))
 
     async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(MediaProject)
-            .options(selectinload(MediaProject.learning_context))
-            .where(MediaProject.id == val_id)
-        )
-        project = result.scalar_one_or_none()
+        project = await ProjectRepository.get_with_context_no_user(db, val_id)
         if not project:
             log.error("Project not found")
             return
 
-        ctx = project.learning_context
-        out_result = await db.execute(
-            select(GeneratedOutput).where(
-                GeneratedOutput.project_id == val_id,
-                GeneratedOutput.output_type == output_type,
-            )
-        )
-        output = out_result.scalar_one_or_none()
-        if not output:
-            output = GeneratedOutput(project_id=val_id, output_type=output_type)
-            db.add(output)
-
+        output = await OutputRepository.get_or_create(db, val_id, output_type)
         output.status = "processing"
         await db.commit()
 
+        ctx = project.learning_context
         ctx_data = LearningContextData(
             fase=ctx.fase,
             kelas=ctx.kelas,
@@ -117,15 +108,13 @@ async def _generate_output(project_id: str, output_type: str, config: dict):
             apersepsi=ctx.apersepsi,
         )
 
-        prompt_builders = {
-            "presentation": build_presentation_prompt,
-            "lkpd": build_lkpd_prompt,
-            "ebook": build_ebook_prompt,
-        }
-        prompt = prompt_builders[output_type](ctx_data, config)
+        prompt = _PROMPT_BUILDERS[output_type](ctx_data, config)
 
         try:
             content = await gemini_service.generate(prompt, context_label=f"{output_type}_{project_id}")
+            if output_type == "presentation":
+                content = PresentationArtifact.model_validate(content).model_dump(mode="json")
+
             output.content = content
             output.status = "done"
             output.generated_at = datetime.now(timezone.utc)

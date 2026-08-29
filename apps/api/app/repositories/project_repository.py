@@ -92,3 +92,15 @@ class ProjectRepository:
     @staticmethod
     async def delete(db: AsyncSession, project: MediaProject) -> None:
         await db.delete(project)
+
+    @staticmethod
+    async def get_with_context_no_user(
+        db: AsyncSession, project_id: uuid.UUID
+    ) -> MediaProject | None:
+        """For internal/background tasks that don't have a user context."""
+        result = await db.execute(
+            select(MediaProject)
+            .options(selectinload(MediaProject.learning_context))
+            .where(MediaProject.id == project_id)
+        )
+        return result.scalar_one_or_none()
