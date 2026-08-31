@@ -5,16 +5,16 @@ export function VisualSlide({ slide }: { slide: PresentationSlide }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 px-16 text-center">
       {slide.title && (
-        <h2 className="text-2xl font-semibold tracking-tight text-black">{slide.title}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">{slide.title}</h2>
       )}
       {asset && (
         <img
           src={asset.url}
           alt={asset.alt ?? ""}
-          className="max-h-72 border border-[#c4c7c7] object-cover"
+          className="max-h-72 rounded-lg border border-border object-cover shadow-xs"
         />
       )}
-      {slide.content && <p className="max-w-xl text-sm text-[#5d5e66]">{slide.content}</p>}
+      {slide.content && <p className="max-w-xl text-sm text-muted-foreground">{slide.content}</p>}
     </div>
   );
 }

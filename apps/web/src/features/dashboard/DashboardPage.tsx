@@ -1,12 +1,16 @@
 import { BookOpen, MonitorPlay, Plus, ScrollText } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AppHeader } from "../../components/layout/AppHeader";
-import { Sidebar } from "../../components/layout/Sidebar";
-import { Badge } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
+
+import { AppHeader } from "@/components/layout/AppHeader";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import type { OutputType } from "@/types/domain";
+
 import { mockProjects } from "../projects/mock";
-import type { OutputType } from "../../types/domain";
 
 const filters = ["Semua", "Presentasi", "LKPD", "E-book"] as const;
 
@@ -47,25 +51,28 @@ export function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white pt-16 pl-64">
+    <div className="min-h-screen bg-background pt-16 pl-64">
       <AppHeader />
       <Sidebar />
 
       <main className="flex flex-col gap-6 px-6 pt-6 pb-24">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-black">Pusat Materi</h1>
-          <p className="text-sm text-[#5d5e66]">Kelola semua materi pembelajaran Anda</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Pusat Materi</h1>
+          <p className="text-sm text-muted-foreground">Kelola semua materi pembelajaran Anda</p>
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="flex overflow-hidden border border-[#c4c7c7]">
+          <div className="flex overflow-hidden rounded-md border border-border">
             {filters.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`border-r border-[#c4c7c7] px-4 py-1.5 font-mono text-xs last:border-r-0 ${
-                  filter === f ? "bg-black text-white" : "bg-white text-[#1a1c1d]"
-                }`}
+                className={cn(
+                  "border-r border-border px-4 py-1.5 font-mono text-xs transition-colors last:border-r-0",
+                  filter === f
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-foreground hover:bg-secondary",
+                )}
               >
                 {f}
               </button>
@@ -81,18 +88,16 @@ export function DashboardPage() {
 
         <div className="flex flex-wrap gap-6 pb-6">
           {visibleProjects.map((project) => (
-            <div key={project.id} className="flex w-[309px] flex-col border border-[#c4c7c7]">
-              <div className="flex items-start justify-between border-b border-[#c4c7c7] px-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <Badge>{project.mata_pelajaran}</Badge>
-                    <Badge>{project.kelas}</Badge>
-                  </div>
-                  <h3 className="text-xl font-medium text-[#1a1c1d]">{project.title}</h3>
+            <Card key={project.id} className="w-[309px]">
+              <CardHeader className="gap-2">
+                <div className="flex gap-2">
+                  <Badge>{project.mata_pelajaran}</Badge>
+                  <Badge>{project.kelas}</Badge>
                 </div>
-              </div>
-              <div className="flex flex-col gap-3 px-4 py-4">
-                <span className="font-mono text-[11px] tracking-wide text-[#5d5e66] uppercase">
+                <h3 className="text-xl font-medium text-foreground">{project.title}</h3>
+              </CardHeader>
+              <CardContent>
+                <span className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
                   Tersedia:
                 </span>
                 <div className="flex gap-2">
@@ -102,7 +107,7 @@ export function DashboardPage() {
                     return (
                       <span
                         key={output}
-                        className="flex items-center gap-1 border border-[#c4c7c7] px-2 py-1 font-mono text-[11px] text-black"
+                        className="flex items-center gap-1 rounded-md border border-border px-2 py-1 font-mono text-[11px] text-foreground"
                       >
                         <Icon size={11} />
                         {meta.label}
@@ -110,9 +115,9 @@ export function DashboardPage() {
                     );
                   })}
                 </div>
-              </div>
-              <div className="flex items-center justify-between border-t border-[#c4c7c7] bg-[#f9f9fa] px-4 py-4">
-                <span className="font-mono text-[11px] text-[#5d5e66]">
+              </CardContent>
+              <CardFooter>
+                <span className="font-mono text-[11px] text-muted-foreground">
                   {project.updated_label}
                 </span>
                 <Link
@@ -122,29 +127,31 @@ export function DashboardPage() {
                     Buka →
                   </Button>
                 </Link>
-              </div>
-            </div>
+              </CardFooter>
+            </Card>
           ))}
 
           <Link
             to="/projects/new"
-            className="flex min-h-[250px] w-[309px] flex-col items-center justify-center gap-2 border border-dashed border-[#c4c7c7] bg-[#f3f3f4] px-6 text-center"
+            className="flex min-h-[250px] w-[309px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-secondary/40 px-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
           >
-            <Plus size={32} className="text-[#c4c7c7]" />
-            <h3 className="text-xl font-medium text-[#1a1c1d]">Buat Materi Baru</h3>
-            <p className="text-sm text-[#5d5e66]">
+            <Plus size={32} className="text-muted-foreground" />
+            <h3 className="text-xl font-medium text-foreground">Buat Materi Baru</h3>
+            <p className="text-sm text-muted-foreground">
               Belum ada materi lain? Mulai buat modul pembelajaran interaktif sekarang.
             </p>
           </Link>
         </div>
 
-        <div className="border-t border-[#c4c7c7] pt-6">
-          <h2 className="mb-4 text-xl font-medium text-black">Statistik Materi</h2>
+        <div className="border-t border-border pt-6">
+          <h2 className="mb-4 text-xl font-medium text-foreground">Statistik Materi</h2>
           <div className="flex gap-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="flex-1 border border-[#c4c7c7] p-4">
-                <p className="mb-1 font-mono text-xs text-[#5d5e66] uppercase">{stat.label}</p>
-                <p className="text-3xl font-semibold tracking-tight text-[#1a1c1d]">
+              <div key={stat.label} className="flex-1 rounded-lg border border-border bg-card p-4">
+                <p className="mb-1 font-mono text-xs text-muted-foreground uppercase">
+                  {stat.label}
+                </p>
+                <p className="text-3xl font-semibold tracking-tight text-foreground">
                   {stat.value}
                 </p>
               </div>

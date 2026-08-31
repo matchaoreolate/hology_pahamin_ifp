@@ -9,23 +9,21 @@ export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteract
 
   return (
     <div className="flex w-full max-w-2xl flex-col items-center gap-6">
-      <p className="text-center text-xl font-semibold text-[#1a1c1d]">
-        {interaction.instruction}
-      </p>
+      <p className="text-center text-xl font-semibold text-foreground">{interaction.instruction}</p>
 
       <div className="flex w-full flex-col gap-3">
         {interaction.options.map((option) => {
           const isSelected = selected === option.id;
           const isCurrentCorrect = option.id === interaction.correct_answer;
 
-          let btnClass = "border-2 border-[#c4c7c7] bg-white hover:border-black text-black";
+          let btnClass = "border-2 border-border bg-card hover:border-primary text-foreground";
           if (isAnswered) {
             if (isCurrentCorrect) {
-              btnClass = "border-emerald-600 bg-emerald-50 text-emerald-950 font-medium";
+              btnClass = "border-2 border-success bg-success/10 text-success font-medium";
             } else if (isSelected && !isCurrentCorrect) {
-              btnClass = "border-rose-500 bg-rose-50 text-rose-950 line-through";
+              btnClass = "border-2 border-destructive bg-destructive/10 text-destructive line-through";
             } else {
-              btnClass = "border-[#e0e2e2] bg-[#f9f9fa] text-neutral-400 opacity-60";
+              btnClass = "border-2 border-border bg-muted text-muted-foreground opacity-60";
             }
           }
 
@@ -38,12 +36,12 @@ export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteract
             >
               <span>{option.label}</span>
               {isAnswered && isCurrentCorrect && (
-                <span className="text-emerald-700 font-bold text-sm bg-emerald-100 px-2.5 py-1 rounded-md">
+                <span className="rounded-md bg-success/15 px-2.5 py-1 text-sm font-bold text-success">
                   ✓ Benar
                 </span>
               )}
               {isAnswered && isSelected && !isCurrentCorrect && (
-                <span className="text-rose-700 font-bold text-sm bg-rose-100 px-2.5 py-1 rounded-md">
+                <span className="rounded-md bg-destructive/15 px-2.5 py-1 text-sm font-bold text-destructive">
                   ✗ Kurang Tepat
                 </span>
               )}
@@ -54,17 +52,17 @@ export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteract
 
       {isAnswered && (
         <div
-          className={`w-full rounded-xl p-4 text-center text-base font-medium transition-all ${
+          className={`w-full rounded-xl border p-4 text-center text-base font-medium transition-all ${
             isCorrect
-              ? "border border-emerald-300 bg-emerald-100 text-emerald-900"
-              : "border border-rose-300 bg-rose-100 text-rose-900"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           <p>{isCorrect ? interaction.feedback.correct : interaction.feedback.incorrect}</p>
           {!isCorrect && (
             <button
               onClick={() => setSelected(null)}
-              className="mt-2 text-xs font-semibold text-rose-800 underline hover:text-rose-950"
+              className="mt-2 text-xs font-semibold underline hover:opacity-80"
             >
               Coba Pilih Lagi
             </button>

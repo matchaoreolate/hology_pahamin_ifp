@@ -17,11 +17,11 @@ export function PresentationNavigation({
 }: PresentationNavigationProps) {
   if (variant === "floating") {
     return (
-      <div className="flex items-center gap-8 rounded-full border border-[#c4c7c7] bg-[#eeeeef] px-6 py-3 shadow-lg">
+      <div className="flex items-center gap-8 rounded-full border border-border bg-card px-6 py-3 shadow-lg">
         <button
           onClick={onPrev}
           disabled={current === 0}
-          className="flex size-14 items-center justify-center rounded-full border-2 border-black bg-white disabled:opacity-30"
+          className="flex size-14 items-center justify-center rounded-full border-2 border-primary bg-card text-foreground transition-colors hover:bg-secondary disabled:opacity-30"
         >
           <ChevronLeft size={20} />
         </button>
@@ -30,7 +30,7 @@ export function PresentationNavigation({
             <span
               key={index}
               className={`rounded-full transition-all ${
-                index === current ? "size-3 bg-black" : "size-2 bg-[#c4c7c7]"
+                index === current ? "size-3 bg-primary" : "size-2 bg-border"
               }`}
             />
           ))}
@@ -38,7 +38,7 @@ export function PresentationNavigation({
         <button
           onClick={onNext}
           disabled={current === total - 1}
-          className="flex size-14 items-center justify-center rounded-full border-2 border-black bg-black text-white disabled:opacity-30"
+          className="flex size-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
         >
           <ChevronRight size={20} />
         </button>
@@ -47,14 +47,22 @@ export function PresentationNavigation({
   }
 
   return (
-    <div className="flex items-center gap-4 border border-[#c4c7c7] bg-white px-[17px] py-[9px]">
-      <button onClick={onPrev} disabled={current === 0} className="disabled:opacity-30">
+    <div className="flex items-center gap-4 rounded-md border border-border bg-card px-4 py-2">
+      <button
+        onClick={onPrev}
+        disabled={current === 0}
+        className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+      >
         <ChevronLeft size={14} />
       </button>
-      <span className="font-mono text-xs text-[#444748]">
+      <span className="font-mono text-xs text-muted-foreground">
         Scene {current + 1} dari {total}
       </span>
-      <button onClick={onNext} disabled={current === total - 1} className="disabled:opacity-30">
+      <button
+        onClick={onNext}
+        disabled={current === total - 1}
+        className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+      >
         <ChevronRight size={14} />
       </button>
     </div>

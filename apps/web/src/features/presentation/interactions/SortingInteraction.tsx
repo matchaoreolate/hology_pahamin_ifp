@@ -14,15 +14,17 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
 
   const allPlacedItems = Object.values(assignments).flat();
   const unplacedPool = interaction.items.filter(
-    (item) => !allPlacedItems.some((placed) => placed.id === item.id)
+    (item) => !allPlacedItems.some((placed) => placed.id === item.id),
   );
 
   const isAllPlaced = unplacedPool.length === 0;
 
   // Validation
-  const isAllCorrect = isAllPlaced && Object.entries(assignments).every(([catId, items]) =>
-    items.every((item) => item.correct_category === catId)
-  );
+  const isAllCorrect =
+    isAllPlaced &&
+    Object.entries(assignments).every(([catId, items]) =>
+      items.every((item) => item.correct_category === catId),
+    );
 
   const handleAssignToCategory = (catId: string) => {
     if (!selectedItem) return;
@@ -51,20 +53,16 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
 
   return (
     <div className="flex w-full max-w-4xl flex-col items-center gap-6">
-      <p className="text-center text-xl font-semibold text-[#1a1c1d]">
-        {interaction.instruction}
-      </p>
+      <p className="text-center text-xl font-semibold text-foreground">{interaction.instruction}</p>
 
       {/* Unplaced Items Pool */}
-      <div className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-[#c4c7c7] bg-[#f9f9fa] p-4">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#747878]">
+      <div className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/50 p-4">
+        <span className="text-center font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Item Tersedia (Ketuk item lalu ketuk kotak kategori)
         </span>
-        <div className="flex flex-wrap justify-center gap-2.5 min-h-[48px] items-center">
+        <div className="flex min-h-[48px] flex-wrap items-center justify-center gap-2.5">
           {unplacedPool.length === 0 && (
-            <span className="text-sm font-medium text-emerald-600">
-              ✓ Semua item telah dikelompokkan
-            </span>
+            <span className="text-sm font-medium text-success">✓ Semua item telah dikelompokkan</span>
           )}
           {unplacedPool.map((item) => {
             const isSelected = selectedItem?.id === item.id;
@@ -72,10 +70,10 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
               <button
                 key={item.id}
                 onClick={() => setSelectedItem(isSelected ? null : item)}
-                className={`rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition-all shadow-sm ${
+                className={`rounded-xl border-2 px-4 py-2.5 text-sm font-semibold shadow-sm transition-all ${
                   isSelected
-                    ? "border-blue-600 bg-blue-600 text-white scale-105"
-                    : "border-slate-300 bg-white text-slate-800 hover:border-black"
+                    ? "scale-105 border-accent bg-accent text-accent-foreground"
+                    : "border-border bg-card text-foreground hover:border-primary"
                 }`}
               >
                 {item.label}
@@ -102,18 +100,18 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
               }}
               className={`flex min-h-[160px] flex-col rounded-2xl border-2 p-4 transition-all ${
                 selectedItem
-                  ? "border-blue-400 bg-blue-50/50 hover:border-blue-600 cursor-pointer"
-                  : "border-[#c4c7c7] bg-white"
+                  ? "cursor-pointer border-accent/50 bg-accent/5 hover:border-accent"
+                  : "border-border bg-card"
               }`}
             >
-              <div className="border-b border-slate-200 pb-2 mb-3 text-center font-bold text-slate-800">
+              <div className="mb-3 border-b border-border pb-2 text-center font-bold text-foreground">
                 {cat.label}
               </div>
-              <div className="flex flex-wrap gap-2 flex-1 items-start">
+              <div className="flex flex-1 flex-wrap items-start gap-2">
                 {itemsInCat.map((item) => (
                   <span
                     key={item.id}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-800"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-1.5 text-xs font-semibold text-foreground"
                   >
                     {item.label}
                     <button
@@ -121,7 +119,7 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
                         e.stopPropagation();
                         handleRemoveFromCategory(cat.id, item.id);
                       }}
-                      className="text-slate-400 hover:text-rose-600 font-bold ml-1"
+                      className="ml-1 font-bold text-muted-foreground hover:text-destructive"
                     >
                       ×
                     </button>
@@ -136,17 +134,17 @@ export function SortingInteraction({ interaction }: { interaction: SortingIntera
       {/* Feedback when all items placed */}
       {isAllPlaced && (
         <div
-          className={`w-full rounded-xl p-4 text-center text-base font-medium transition-all ${
+          className={`w-full rounded-xl border p-4 text-center text-base font-medium transition-all ${
             isAllCorrect
-              ? "border border-emerald-300 bg-emerald-100 text-emerald-900"
-              : "border border-rose-300 bg-rose-100 text-rose-900"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           <p>{isAllCorrect ? interaction.feedback.correct : interaction.feedback.incorrect}</p>
           {!isAllCorrect && (
             <button
               onClick={handleReset}
-              className="mt-2 text-xs font-semibold text-rose-800 underline hover:text-rose-950"
+              className="mt-2 text-xs font-semibold underline hover:opacity-80"
             >
               Reset Pengelompokan
             </button>

@@ -1,21 +1,15 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import type { InputHTMLAttributes } from "react";
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { className = "", ...rest } = props;
+import { cn } from "@/lib/utils";
+
+export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full border border-[#c4c7c7] px-[13px] py-[13px] text-sm text-[#1a1c1d] placeholder:text-[#6b7280] focus:outline-none focus:border-black ${className}`}
-      {...rest}
-    />
-  );
-}
-
-export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  const { className = "", ...rest } = props;
-  return (
-    <textarea
-      className={`w-full border border-[#c4c7c7] px-[13px] py-[13px] text-sm text-[#1a1c1d] placeholder:text-[#6b7280] focus:outline-none focus:border-black resize-none ${className}`}
-      {...rest}
+      className={cn(
+        "flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
     />
   );
 }

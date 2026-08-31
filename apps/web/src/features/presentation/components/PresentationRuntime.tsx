@@ -15,7 +15,7 @@ export function PresentationRuntime({
   const slide = artifact.slides[current];
 
   return (
-    <div className="flex h-full w-full flex-col bg-white">
+    <div className="flex h-full w-full flex-col bg-background">
       <PresentationHeader meta={artifact.meta} current={current} onExit={onExit} />
       <div className="relative flex flex-1 items-center justify-center overflow-hidden px-8 py-8">
         <SlideViewport slide={slide} className="aspect-auto h-full" />

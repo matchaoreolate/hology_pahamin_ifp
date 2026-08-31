@@ -15,9 +15,8 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
   const isCompleted = pairedCount === totalPairs;
 
   // Validate correctness: each pair id has pair.left.id matching pair.right.id
-  const isAllCorrect = isCompleted && interaction.pairs.every(
-    (p) => matches[p.left.id] === p.right.id
-  );
+  const isAllCorrect =
+    isCompleted && interaction.pairs.every((p) => matches[p.left.id] === p.right.id);
 
   const handleRightClick = (rightId: string) => {
     if (!selectedLeft) return;
@@ -40,14 +39,12 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
 
   return (
     <div className="flex w-full max-w-3xl flex-col items-center gap-6">
-      <p className="text-center text-xl font-semibold text-[#1a1c1d]">
-        {interaction.instruction}
-      </p>
+      <p className="text-center text-xl font-semibold text-foreground">{interaction.instruction}</p>
 
       <div className="grid w-full grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="flex flex-col gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#747878] text-center">
+          <span className="text-center font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Pilih Konsep (Kiri)
           </span>
           {leftItems.map((left) => {
@@ -59,15 +56,19 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
                 onClick={() => setSelectedLeft(isSelected ? null : left.id)}
                 className={`rounded-xl border-2 px-5 py-4 text-left text-base font-medium transition-all ${
                   isSelected
-                    ? "border-blue-600 bg-blue-50 shadow-sm"
+                    ? "border-accent bg-accent/10 shadow-sm"
                     : hasMatch
-                    ? "border-slate-800 bg-slate-100 text-slate-900"
-                    : "border-[#c4c7c7] bg-white hover:border-black"
+                      ? "border-foreground bg-secondary text-foreground"
+                      : "border-border bg-card hover:border-primary"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span>{left.label}</span>
-                  {hasMatch && <span className="text-xs font-mono bg-white px-2 py-0.5 rounded border border-slate-300">Terpasang</span>}
+                  {hasMatch && (
+                    <span className="rounded border border-border bg-card px-2 py-0.5 font-mono text-xs">
+                      Terpasang
+                    </span>
+                  )}
                 </div>
               </button>
             );
@@ -76,7 +77,7 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
 
         {/* Right Column */}
         <div className="flex flex-col gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#747878] text-center">
+          <span className="text-center font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Pasangkan (Kanan)
           </span>
           {rightItems.map((right) => {
@@ -89,12 +90,12 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
                 onClick={() => handleRightClick(right.id)}
                 className={`rounded-xl border-2 px-5 py-4 text-left text-base font-medium transition-all ${
                   isPairedWithSelected
-                    ? "border-blue-600 bg-blue-50"
+                    ? "border-accent bg-accent/10"
                     : isMatchedByAny
-                    ? "border-slate-700 bg-slate-50 text-slate-800"
-                    : selectedLeft
-                    ? "border-blue-400 bg-white hover:border-blue-700 cursor-pointer animate-pulse"
-                    : "border-[#c4c7c7] bg-white hover:border-black"
+                      ? "border-foreground bg-secondary text-foreground"
+                      : selectedLeft
+                        ? "cursor-pointer animate-pulse border-accent/50 bg-card hover:border-accent"
+                        : "border-border bg-card hover:border-primary"
                 }`}
               >
                 <span>{right.label}</span>
@@ -106,17 +107,17 @@ export function MatchingInteraction({ interaction }: { interaction: MatchingInte
 
       {isCompleted && (
         <div
-          className={`w-full rounded-xl p-4 text-center text-base font-medium transition-all ${
+          className={`w-full rounded-xl border p-4 text-center text-base font-medium transition-all ${
             isAllCorrect
-              ? "border border-emerald-300 bg-emerald-100 text-emerald-900"
-              : "border border-rose-300 bg-rose-100 text-rose-900"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           <p>{isAllCorrect ? interaction.feedback.correct : interaction.feedback.incorrect}</p>
           {!isAllCorrect && (
             <button
               onClick={handleReset}
-              className="mt-2 text-xs font-semibold text-rose-800 underline hover:text-rose-950"
+              className="mt-2 text-xs font-semibold underline hover:opacity-80"
             >
               Reset Pasangan
             </button>

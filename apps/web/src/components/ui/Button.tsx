@@ -1,39 +1,39 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "dashed";
-type Size = "sm" | "md";
+import { cn } from "@/lib/utils";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
-  size?: Size;
-  children: ReactNode;
-}
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-mono text-xs font-medium tracking-wide transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+  {
+    variants: {
+      variant: {
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+        secondary:
+          "bg-card text-foreground border border-border hover:bg-secondary",
+        ghost: "bg-transparent text-foreground hover:bg-secondary",
+        dashed:
+          "bg-transparent text-muted-foreground border border-dashed border-muted-foreground/60 hover:bg-secondary hover:text-foreground",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+      },
+      size: {
+        sm: "h-8 rounded-md px-3 text-xs",
+        md: "h-10 rounded-md px-6 text-xs",
+        icon: "size-8 rounded-md",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "md",
+    },
+  },
+);
 
-const variantClasses: Record<Variant, string> = {
-  primary: "bg-black text-white hover:bg-neutral-800",
-  secondary: "bg-white text-[#1a1c1d] border border-[#c4c7c7] hover:bg-[#f9f9fa]",
-  ghost: "bg-transparent text-[#1a1c1d] hover:bg-[#f3f3f4]",
-  dashed: "bg-transparent text-[#444748] border border-dashed border-[#747878] hover:bg-[#f9f9fa]",
-};
+interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
 
-const sizeClasses: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-xs",
-  md: "px-6 py-3 text-xs",
-};
-
-export function Button({
-  variant = "primary",
-  size = "md",
-  className = "",
-  children,
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      className={`inline-flex items-center justify-center gap-2 font-mono font-medium tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+export function Button({ className, variant, size, ...props }: ButtonProps) {
+  return <button className={cn(buttonVariants({ variant, size, className }))} {...props} />;
 }

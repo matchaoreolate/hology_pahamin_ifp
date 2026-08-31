@@ -9,7 +9,7 @@ export function SlideViewport({
   className?: string;
 }) {
   return (
-    <div className={`flex aspect-video w-full items-center justify-center bg-white ${className}`}>
+    <div className={`flex aspect-video w-full items-center justify-center bg-card ${className}`}>
       <SlideRenderer slide={slide} />
     </div>
   );
