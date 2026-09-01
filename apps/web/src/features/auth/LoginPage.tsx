@@ -57,9 +57,9 @@ export function LoginPage() {
                     <Checkbox />
                     Ingat saya
                   </label>
-                  <a className="font-mono text-xs text-muted-foreground underline hover:text-foreground">
+                  {/* <a className="font-mono text-xs text-muted-foreground underline hover:text-foreground">
                     Lupa Password?
-                  </a>
+                  </a> */}
                 </div>
                 <Button type="submit" variant="primary" className="h-11 w-full text-sm normal-case">
                   Masuk Sistem

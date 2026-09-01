@@ -36,7 +36,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-clip bg-white text-[#454650]">
       {/* Floating nav */}
-      <header className="fixed top-6 left-1/2 z-20 flex w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/10 bg-[#fffff]/80 px-6 py-2 shadow-lg backdrop-blur-md">
+      <header className="fixed top-6 left-1/2 z-20 flex w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/40 bg-white/60 px-6 py-2 shadow-lg backdrop-blur-md">
         <Link
           to="/"
           className="flex items-center gap-2 text-2xl font-extrabold text-[#001456]"
@@ -91,15 +91,18 @@ export function LandingPage() {
               >
                 Coba Gratis
               </Link>
-              <button className="rounded-full border-2 border-[#001456] px-8 py-3.5 text-base font-semibold text-[#001456] transition-colors hover:bg-[#001456]/5">
+              <a
+                href="#fitur"
+                className="rounded-full border-2 border-[#001456] px-8 py-3.5 text-base font-semibold text-[#001456] transition-colors hover:bg-[#001456]/5"
+              >
                 Lihat Fitur
-              </button>
+              </a>
             </div>
           </div>
 
           {/* IFP mockup — locked to 16:9, small on mobile, large on desktop */}
           <div className="relative z-[1] w-full max-w-[320px] sm:max-w-[560px] lg:max-w-[1000px]">
-            <div className="aspect-video w-full rounded-xl border-4 sm:rounded-2xl sm:border-6 lg:rounded-3xl lg:border-8 border-[#333] bg-[#1a1a1a] p-1.5 sm:p-3 lg:p-6 shadow-2xl">
+            <div className="aspect-video w-full rounded-xl border-4 sm:rounded-2xl sm:border-6 lg:rounded-3xl lg:border-8 border-[#333] bg-[#1a1a1a] p-1.5 sm:p-3 lg:p-6 shadow-xl">
               <div className="flex size-full flex-col overflow-hidden rounded-lg sm:rounded-xl bg-[#fbf9f5] p-3 sm:p-6 lg:p-12">
                 <div className="mb-1 flex justify-end gap-2 sm:mb-4 sm:gap-4 text-[#767681]">
                   <span className="flex items-center gap-1 text-[8px] sm:text-xs lg:text-sm">
@@ -120,8 +123,7 @@ export function LandingPage() {
                       Perhatikan gambar. Geser bagian yang berwarna untuk mencari pecahan senilai.
                     </p>
                     <button className="flex items-center gap-1 rounded-full bg-[#001456] px-2 py-1 text-[7px] font-semibold text-white sm:gap-2 sm:px-6 sm:py-2 sm:text-sm lg:text-base">
-                      <Sparkles className="size-2 sm:size-4" />
-                      Ayo Coba!
+                      Selanjutnya
                     </button>
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5 sm:gap-8">
@@ -211,7 +213,7 @@ export function LandingPage() {
               <div className="relative z-[2] flex flex-col gap-2">
                 <h3 className="text-4xl font-bold text-white">PPT</h3>
                 <p className="max-w-[250px] text-base text-white/80">
-                  Presentasi interaktif yang siap tampil di kelas.
+                  Presentasi interaktif untuk digunakan langsung di TV kelas.
                 </p>
               </div>
               <button className="relative z-[2] mt-8 flex size-12 items-center justify-center rounded-full bg-white text-[#001456]">

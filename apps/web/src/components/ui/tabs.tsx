@@ -20,7 +20,7 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof BaseT
   return (
     <BaseTabs.Tab
       className={cn(
-        "flex-1 rounded-md px-4 py-3 text-center font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase transition-colors outline-none data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+        "flex-1 rounded-md px-4 py-3 text-center font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase transition-colors outline-none data-[active]:bg-primary data-[active]:text-primary-foreground",
         className,
       )}
       {...props}
