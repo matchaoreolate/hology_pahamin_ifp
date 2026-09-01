@@ -87,10 +87,6 @@ export function LoginPage() {
               </form>
             </TabsContent>
           </Tabs>
-
-          <p className="text-center font-mono text-[11px] text-muted-foreground">
-            © 2024 PahamIn AI. Structural Blueprint Design.
-          </p>
         </div>
       </main>
 

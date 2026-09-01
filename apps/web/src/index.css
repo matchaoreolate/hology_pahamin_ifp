@@ -6,27 +6,28 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.148 0.004 228.8);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.148 0.004 228.8);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.148 0.004 228.8);
-  --primary: oklch(0.488 0.243 264.376);
-  --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.963 0.002 197.1);
-  --muted-foreground: oklch(0.56 0.021 213.5);
-  --accent: oklch(0.488 0.243 264.376);
-  --accent-foreground: oklch(0.97 0.014 254.604);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.97 0.014 254.604);
-  --success: oklch(0.6 0.14 155);
-  --success-foreground: oklch(0.97 0.014 254.604);
-  --border: oklch(0.925 0.005 214.3);
-  --input: oklch(0.925 0.005 214.3);
-  --ring: oklch(0.723 0.014 214.4);
+  /* PahamIn brand palette (same colors as the landing page) */
+  --background: #ffffff;
+  --foreground: #001456;
+  --card: #ffffff;
+  --card-foreground: #001456;
+  --popover: #ffffff;
+  --popover-foreground: #001456;
+  --primary: #001456;
+  --primary-foreground: #ffffff;
+  --secondary: #fbf9f5;
+  --secondary-foreground: #001456;
+  --muted: #fbf9f5;
+  --muted-foreground: #454650;
+  --accent: #fdd34d;
+  --accent-foreground: #001456;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #90d792;
+  --success-foreground: #002107;
+  --border: #c6c5d2;
+  --input: #c6c5d2;
+  --ring: #001456;
   --chart-1: oklch(0.785 0.115 274.713);
   --chart-2: oklch(0.585 0.233 277.117);
   --chart-3: oklch(0.511 0.262 276.966);
@@ -44,27 +45,27 @@
 }
 
 .dark {
-  --background: oklch(0.148 0.004 228.8);
-  --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.218 0.008 223.9);
-  --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: oklch(0.218 0.008 223.9);
-  --popover-foreground: oklch(0.987 0.002 197.1);
-  --primary: oklch(0.424 0.199 265.638);
-  --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.275 0.011 216.9);
-  --muted-foreground: oklch(0.723 0.014 214.4);
-  --accent: oklch(0.424 0.199 265.638);
-  --accent-foreground: oklch(0.97 0.014 254.604);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.97 0.014 254.604);
-  --success: oklch(0.696 0.14 155);
-  --success-foreground: oklch(0.97 0.014 254.604);
-  --border: oklch(1 0 0 / 10%);
+  --background: #001456;
+  --foreground: #fbf9f5;
+  --card: #001c6e;
+  --card-foreground: #fbf9f5;
+  --popover: #001c6e;
+  --popover-foreground: #fbf9f5;
+  --primary: #fbf9f5;
+  --primary-foreground: #001456;
+  --secondary: #002875;
+  --secondary-foreground: #fbf9f5;
+  --muted: #002875;
+  --muted-foreground: #b8c3ff;
+  --accent: #fdd34d;
+  --accent-foreground: #001456;
+  --destructive: #f87171;
+  --destructive-foreground: #001456;
+  --success: #90d792;
+  --success-foreground: #002107;
+  --border: oklch(1 0 0 / 15%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.56 0.021 213.5);
+  --ring: #fdd34d;
   --chart-1: oklch(0.785 0.115 274.713);
   --chart-2: oklch(0.585 0.233 277.117);
   --chart-3: oklch(0.511 0.262 276.966);
@@ -138,6 +139,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border outline-ring/50;
   }

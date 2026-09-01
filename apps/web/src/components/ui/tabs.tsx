@@ -10,7 +10,7 @@ export function Tabs({ className, ...props }: ComponentProps<typeof BaseTabs.Roo
 export function TabsList({ className, ...props }: ComponentProps<typeof BaseTabs.List>) {
   return (
     <BaseTabs.List
-      className={cn("flex border-b border-border", className)}
+      className={cn("flex gap-1 border-b border-border p-1", className)}
       {...props}
     />
   );
@@ -20,7 +20,7 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof BaseT
   return (
     <BaseTabs.Tab
       className={cn(
-        "flex-1 border-b-2 border-transparent px-4 py-4 text-center font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase transition-colors outline-none data-[selected]:border-primary data-[selected]:text-foreground",
+        "flex-1 rounded-md px-4 py-3 text-center font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase transition-colors outline-none data-[selected]:bg-primary data-[selected]:text-primary-foreground",
         className,
       )}
       {...props}

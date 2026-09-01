@@ -1,7 +1,6 @@
 import {
   ArrowRight,
   BatteryFull,
-  BookOpenCheck,
   FileEdit,
   MonitorPlay,
   Sparkles,
@@ -14,22 +13,22 @@ const steps = [
     icon: FileEdit,
     iconBg: "bg-[#001456]/10",
     iconColor: "text-[#001456]",
-    title: "Step 1",
-    description: "Isi topik, tujuan, dan konteks pembelajaran.",
+    title: "1 - Isi Konteks",
+    description: "Masukkan topik, tujuan, waktu, dan konteks pembelajaran.",
   },
   {
     icon: Sparkles,
     iconBg: "bg-[#90d792]/20",
     iconColor: "text-[#1e7a24]",
-    title: "Step 2",
-    description: "AI menghasilkan draf materi yang relevan.",
+    title: "2 - Generate dengan AI",
+    description: "PahamIn menyusun materi dan aktivitas berdasarkan kebutuhan kelas.",
   },
   {
     icon: MonitorPlay,
     iconBg: "bg-[#fdd34d]/20",
     iconColor: "text-[#725b00]",
-    title: "Step 3",
-    description: "Edit, sesuaikan, dan tampilkan di kelas.",
+    title: "3 - Siap Digunakan di Kelas",
+    description: "Tinjau, sesuaikan, lalu tampilkan di kelas atau gunakan sebagai bahan belajar.",
   },
 ];
 
@@ -37,7 +36,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-clip bg-white text-[#454650]">
       {/* Floating nav */}
-      <header className="fixed top-6 left-1/2 z-20 flex w-[568px] max-w-[calc(100%-2rem)] -translate-x-1/2 items-center justify-center gap-16 rounded-full border border-[#c6c5d2]/10 bg-[#fbf9f5]/80 px-6 py-2 shadow-lg backdrop-blur-md">
+      <header className="fixed top-6 left-1/2 z-20 flex w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/10 bg-[#fffff]/80 px-6 py-2 shadow-lg backdrop-blur-md">
         <Link
           to="/"
           className="flex items-center gap-2 text-2xl font-extrabold text-[#001456]"
@@ -46,12 +45,18 @@ export function LandingPage() {
           PahamIn
         </Link>
         <nav className="flex items-center gap-6">
-          <span className="text-sm font-bold tracking-wide text-[#454650]">
+          <a
+            href="#tentang"
+            className="text-sm font-bold tracking-wide text-[#454650] transition-colors hover:text-[#001456]"
+          >
             Tentang
-          </span>
-          <span className="text-sm font-bold tracking-wide text-[#454650]">
+          </a>
+          <a
+            href="#fitur"
+            className="text-sm font-bold tracking-wide text-[#454650] transition-colors hover:text-[#001456]"
+          >
             Fitur
-          </span>
+          </a>
         </nav>
         <Link
           to="/login"
@@ -69,71 +74,13 @@ export function LandingPage() {
           <div className="absolute top-48 right-10 size-48 rounded-full border-4 border-[#001456] opacity-50" />
           <div className="absolute right-0 bottom-20 size-64 rounded-l-full bg-[#001456] opacity-90" />
 
-          {/* IFP mockup */}
-          <div className="relative z-[1] w-full max-w-[1000px] rounded-3xl border-8 border-[#333] bg-[#1a1a1a] p-6 shadow-2xl">
-            <div className="w-full rounded-xl bg-[#fbf9f5] p-12">
-              <div className="mb-4 flex justify-end gap-4 text-[#767681]">
-                <span className="flex items-center gap-1 text-sm">
-                  <Wifi size={14} />
-                  05:00
-                </span>
-                <BatteryFull size={14} />
-              </div>
-              <div className="flex items-start justify-between gap-8">
-                <div className="max-w-[428px]">
-                  <p className="mb-2 text-sm font-bold tracking-wide text-[#001456]">
-                    Matematika • Pecahan
-                  </p>
-                  <h2 className="mb-4 text-4xl leading-tight font-bold text-[#001456]">
-                    Mengenal Pecahan Senilai
-                  </h2>
-                  <p className="mb-8 text-base text-[#454650]">
-                    Perhatikan gambar. Geser bagian yang berwarna untuk mencari pecahan senilai.
-                  </p>
-                  <button className="flex items-center gap-2 rounded-full bg-[#001456] px-6 py-2 text-base font-semibold text-white">
-                    <Sparkles size={16} />
-                    Ayo Coba!
-                  </button>
-                </div>
-                <div className="flex shrink-0 items-center gap-8 pt-4">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="relative size-32 overflow-hidden rounded-full border-2 border-[#767681]">
-                      <div className="absolute top-0 left-0 h-1/2 w-1/2 border-r border-b border-[#767681] bg-[#fdd34d]" />
-                    </div>
-                    <span className="text-2xl font-bold text-[#001456]">
-                      1/2
-                    </span>
-                  </div>
-                  <span className="text-2xl font-bold text-[#001456]">
-                    =
-                  </span>
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="grid size-32 grid-cols-4 grid-rows-2 overflow-hidden rounded-full border-2 border-[#767681]">
-                      {[0, 1, 2, 3].map((i) => (
-                        <span key={`t-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
-                      ))}
-                      {[0, 1, 2, 3].map((i) => (
-                        <span key={`b-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
-                      ))}
-                    </div>
-                    <span className="text-2xl font-bold text-[#001456]">
-                      4/8
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="pt-2 text-center text-xs font-bold tracking-[1.2px] text-[#666] uppercase">
-              PahamIn
-            </p>
-          </div>
 
-          <div className="relative z-[1] flex max-w-5xl flex-col items-center gap-6 pt-12 text-center">
+          <div className="relative z-[1] flex max-w-5xl flex-col items-center gap-4 py-6 pb-10  text-center">
             <h1 className="text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl">
               Platform untuk Kelas Interaktif
             </h1>
             <p className="text-lg text-[#454650]">
-              Dirancang khusus untuk layar sentuh besar.
+              Buat media pembelajaran dengan AI dan gunakan langsung di TV interaktif kelas.
               <br />
               Bantu guru mengajar lebih interaktif, siswa lebih terlibat.
             </p>
@@ -149,19 +96,82 @@ export function LandingPage() {
               </button>
             </div>
           </div>
+
+          {/* IFP mockup — locked to 16:9, small on mobile, large on desktop */}
+          <div className="relative z-[1] w-full max-w-[320px] sm:max-w-[560px] lg:max-w-[1000px]">
+            <div className="aspect-video w-full rounded-xl border-4 sm:rounded-2xl sm:border-6 lg:rounded-3xl lg:border-8 border-[#333] bg-[#1a1a1a] p-1.5 sm:p-3 lg:p-6 shadow-2xl">
+              <div className="flex size-full flex-col overflow-hidden rounded-lg sm:rounded-xl bg-[#fbf9f5] p-3 sm:p-6 lg:p-12">
+                <div className="mb-1 flex justify-end gap-2 sm:mb-4 sm:gap-4 text-[#767681]">
+                  <span className="flex items-center gap-1 text-[8px] sm:text-xs lg:text-sm">
+                    <Wifi className="size-2.5 sm:size-3.5" />
+                    05:00
+                  </span>
+                  <BatteryFull className="size-2.5 sm:size-3.5" />
+                </div>
+                <div className="flex flex-1 items-center justify-between gap-2 sm:gap-8">
+                  <div className="max-w-[60%] lg:max-w-[428px]">
+                    <p className="mb-0.5 text-[7px] font-bold tracking-wide text-[#001456] sm:mb-2 sm:text-xs lg:text-sm">
+                      Matematika • Pecahan
+                    </p>
+                    <h2 className="mb-1 text-xs leading-tight font-bold text-[#001456] sm:mb-4 sm:text-xl lg:text-4xl">
+                      Mengenal Pecahan Senilai
+                    </h2>
+                    <p className="mb-1.5 hidden text-[10px] text-[#454650] sm:mb-8 sm:block sm:text-sm lg:text-base">
+                      Perhatikan gambar. Geser bagian yang berwarna untuk mencari pecahan senilai.
+                    </p>
+                    <button className="flex items-center gap-1 rounded-full bg-[#001456] px-2 py-1 text-[7px] font-semibold text-white sm:gap-2 sm:px-6 sm:py-2 sm:text-sm lg:text-base">
+                      <Sparkles className="size-2 sm:size-4" />
+                      Ayo Coba!
+                    </button>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5 sm:gap-8">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-4">
+                      <div className="relative size-6 overflow-hidden rounded-full border border-[#767681] sm:size-16 sm:border-2 lg:size-32">
+                        <div className="absolute top-0 left-0 h-1/2 w-1/2 border-r border-b border-[#767681] bg-[#fdd34d]" />
+                      </div>
+                      <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
+                        1/2
+                      </span>
+                    </div>
+                    <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
+                      =
+                    </span>
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-4">
+                      <div className="grid size-6 grid-cols-4 grid-rows-2 overflow-hidden rounded-full border border-[#767681] sm:size-16 sm:border-2 lg:size-32">
+                        {[0, 1, 2, 3].map((i) => (
+                          <span key={`t-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
+                        ))}
+                        {[0, 1, 2, 3].map((i) => (
+                          <span key={`b-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
+                        ))}
+                      </div>
+                      <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
+                        4/8
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="absolute bottom-2 right-1/2 text-center text-[7px] font-bold tracking-[1.2px] text-[#666] uppercase sm:pt-2 sm:text-xs">
+              PahamIn
+            </p>
+          </div>
+
         </section>
 
         {/* PROBLEM */}
-        <section className="mx-auto flex max-w-[1280px] flex-col items-center gap-12 px-10 py-24 md:flex-row">
+        <section
+          id="tentang"
+          className="mx-auto flex max-w-[1280px] scroll-mt-28 flex-col items-center gap-12 px-10 py-24 md:flex-row"
+        >
           <div className="flex-1">
             <h2 className="mb-6 text-4xl leading-tight font-bold tracking-tight text-[#001456]">
-              Guru bingung membuat media?
-              <br />
-              Ada TV interaktif? blablabla
+              Punya TV interaktif, tapi bingung mau dipakai buat apa?
             </h2>
             <p className="text-lg leading-relaxed text-[#454650]">
-              Membuat materi menarik memakan waktu. Padahal guru punya banyak hal lain yang lebih
-              penting. PahamIn hadir untuk mengubah cara guru menyiapkan pembelajaran.
+              Membuat media pembelajaran yang menarik membutuhkan waktu. Padahal, guru punya banyak hal lain yang harus disiapkan.
+              PahamIn membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
             </p>
           </div>
           <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-12">
@@ -174,10 +184,13 @@ export function LandingPage() {
         </section>
 
         {/* SOLUTION */}
-        <section className="mx-auto flex max-w-[1280px] flex-col gap-16 px-10 py-16">
+        <section
+          id="fitur"
+          className="mx-auto flex max-w-[1280px] scroll-mt-28 flex-col gap-16 px-10 py-16"
+        >
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-4xl font-bold tracking-tight text-[#001456]">
-              PahamIn, Generator Media Pembelajaran
+              Satu Ide, Berbagai Media Pembelajaran
             </h2>
             <p className="text-lg text-[#454650]">
               Buat berbagai media pembelajaran dalam hitungan menit dengan bantuan AI.
@@ -185,26 +198,33 @@ export function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-            <div className="relative flex flex-col justify-between overflow-hidden rounded-[32px] bg-[#001456] p-10 shadow-lg md:col-span-7">
+            {/* PPT — large card, slide mockup asset behind the copy */}
+            <div className="relative flex min-h-[454px] flex-col justify-between overflow-hidden rounded-[32px] bg-[#001456] p-10 shadow-lg md:col-span-7">
               <div className="absolute top-1/4 -left-10 h-1/2 w-20 rounded-r-full bg-[#fdd34d] opacity-90" />
-              <div className="relative z-[1] flex flex-col gap-2">
+
+              <img
+                src="/presentation.png"
+                alt="Pratinjau slide presentasi interaktif"
+                className="absolute top-1/3 right-0 bottom-0 left-1/3 z-[1] size-full rounded-tl-3xl object-cover shadow-[-8px_-8px_0px_rgba(0,0,0,0.1)]"
+              />
+
+              <div className="relative z-[2] flex flex-col gap-2">
                 <h3 className="text-4xl font-bold text-white">PPT</h3>
                 <p className="max-w-[250px] text-base text-white/80">
                   Presentasi interaktif yang siap tampil di kelas.
                 </p>
               </div>
-              <button className="relative z-[1] mt-8 flex size-12 items-center justify-center rounded-full bg-white text-[#001456]">
+              <button className="relative z-[2] mt-8 flex size-12 items-center justify-center rounded-full bg-white text-[#001456]">
                 <ArrowRight size={18} />
               </button>
             </div>
 
             <div className="flex flex-col gap-6 md:col-span-5">
-              <div className="flex items-start justify-between rounded-[32px] bg-[#fdd34d] p-8 shadow-md">
-                <div className="flex flex-col justify-between gap-4">
+              {/* LKPD — worksheet mockup asset behind the copy */}
+              <div className="relative flex min-h-[213px] items-start justify-between overflow-hidden rounded-[32px] bg-[#fdd34d] p-8 shadow-md">
+                <div className="relative z-[2] flex flex-col justify-between gap-4">
                   <div>
-                    <h3 className="mb-1 text-2xl font-bold text-[#725b00]">
-                      LKPD
-                    </h3>
+                    <h3 className="mb-1 text-2xl font-bold text-[#725b00]">LKPD</h3>
                     <p className="text-base text-[#725b00]/80">
                       Lembar kerja peserta didik siap cetak atau digital.
                     </p>
@@ -213,15 +233,18 @@ export function LandingPage() {
                     <ArrowRight size={16} />
                   </button>
                 </div>
-                <FileEdit size={40} className="shrink-0 text-[#725b00]/40" />
+                <img
+                  src="/LKPD.png"
+                  alt="Pratinjau lembar kerja peserta didik"
+                  className="absolute top-28 -right-2 z-[1] w-40 rotate-6 rounded-lg shadow-md"
+                />
               </div>
 
-              <div className="flex items-start justify-between rounded-[32px] bg-[#90d792] p-8 shadow-md">
-                <div className="flex flex-col justify-between gap-4">
+              {/* E-Book — reader mockup asset behind the copy */}
+              <div className="relative flex min-h-[213px] items-start justify-between gap-4 overflow-hidden rounded-[32px] bg-[#90d792] p-8 shadow-md">
+                <div className="relative z-[2] flex flex-col justify-between gap-4">
                   <div>
-                    <h3 className="mb-1 text-2xl font-bold text-[#002107]">
-                      E-Book
-                    </h3>
+                    <h3 className="mb-1 text-2xl font-bold text-[#002107]">E-Book</h3>
                     <p className="text-base text-[#002107]/80">
                       Bahan ajar digital yang menarik dan mudah dibaca.
                     </p>
@@ -230,7 +253,11 @@ export function LandingPage() {
                     <ArrowRight size={16} />
                   </button>
                 </div>
-                <BookOpenCheck size={40} className="shrink-0 text-[#002107]/40" />
+                <img
+                  src="/EBOOK.png"
+                  alt="Pratinjau e-book pembelajaran"
+                  className="absolute top-45 right-4 z-[1] w-36 -translate-y-1/2 rounded-lg shadow-md"
+                />
               </div>
             </div>
           </div>
@@ -240,9 +267,9 @@ export function LandingPage() {
         <section className="relative mx-auto flex max-w-[1280px] flex-col gap-8 px-10 py-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-4xl font-bold tracking-tight text-[#001456]">
-              Step By Step
+              Dari Ide Jadi Media, Semudah Ini
             </h2>
-            <p className="text-lg text-[#454650]">Dengan mudah blablabla</p>
+            <p className="text-lg text-[#454650]">Isi konteks pembelajaran, biarkan AI membantu, lalu gunakan hasilnya di kelas.</p>
           </div>
 
           <div className="relative flex flex-col items-stretch justify-between gap-6 pt-8 md:flex-row">
@@ -280,7 +307,7 @@ export function LandingPage() {
             <h2 className="text-4xl font-bold text-white">
               Cobain Sekarang!
             </h2>
-            <p className="text-lg text-white/80">Dirancang khusus untuk TV Merah Putih</p>
+            <p className="text-lg text-white/80">Dirancang untuk pembelajaran di TV interaktif dan Interactive Flat Panel.</p>
             <div className="flex gap-4 pt-6">
               <Link
                 to="/projects/new"
@@ -288,9 +315,9 @@ export function LandingPage() {
               >
                 Coba Gratis
               </Link>
-              <button className="rounded-full border border-white/30 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10">
+              {/* <button className="rounded-full border border-white/30 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10">
                 Pelajari Lebih Lanjut
-              </button>
+              </button> */}
             </div>
           </div>
         </section>
@@ -308,10 +335,7 @@ export function LandingPage() {
               Bantuan
             </span>
             <span className="text-sm font-bold tracking-wide text-[#454650] opacity-80">
-              Syarat &amp; Ketentuan
-            </span>
-            <span className="text-sm font-bold tracking-wide text-[#454650] opacity-80">
-              Privasi
+              Tentang Kami
             </span>
           </div>
         </div>
