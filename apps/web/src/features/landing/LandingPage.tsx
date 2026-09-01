@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { HeroPresentationShowcase } from "./showcase/HeroPresentationShowcase";
+
 const steps = [
   {
     icon: FileEdit,
@@ -111,48 +113,7 @@ export function LandingPage() {
                   </span>
                   <BatteryFull className="size-2.5 sm:size-3.5" />
                 </div>
-                <div className="flex flex-1 items-center justify-between gap-2 sm:gap-8">
-                  <div className="max-w-[60%] lg:max-w-[428px]">
-                    <p className="mb-0.5 text-[7px] font-bold tracking-wide text-[#001456] sm:mb-2 sm:text-xs lg:text-sm">
-                      Matematika • Pecahan
-                    </p>
-                    <h2 className="mb-1 text-xs leading-tight font-bold text-[#001456] sm:mb-4 sm:text-xl lg:text-4xl">
-                      Mengenal Pecahan Senilai
-                    </h2>
-                    <p className="mb-1.5 hidden text-[10px] text-[#454650] sm:mb-8 sm:block sm:text-sm lg:text-base">
-                      Perhatikan gambar. Geser bagian yang berwarna untuk mencari pecahan senilai.
-                    </p>
-                    <button className="flex items-center gap-1 rounded-full bg-[#001456] px-2 py-1 text-[7px] font-semibold text-white sm:gap-2 sm:px-6 sm:py-2 sm:text-sm lg:text-base">
-                      Selanjutnya
-                    </button>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1.5 sm:gap-8">
-                    <div className="flex flex-col items-center gap-0.5 sm:gap-4">
-                      <div className="relative size-6 overflow-hidden rounded-full border border-[#767681] sm:size-16 sm:border-2 lg:size-32">
-                        <div className="absolute top-0 left-0 h-1/2 w-1/2 border-r border-b border-[#767681] bg-[#fdd34d]" />
-                      </div>
-                      <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
-                        1/2
-                      </span>
-                    </div>
-                    <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col items-center gap-0.5 sm:gap-4">
-                      <div className="grid size-6 grid-cols-4 grid-rows-2 overflow-hidden rounded-full border border-[#767681] sm:size-16 sm:border-2 lg:size-32">
-                        {[0, 1, 2, 3].map((i) => (
-                          <span key={`t-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
-                        ))}
-                        {[0, 1, 2, 3].map((i) => (
-                          <span key={`b-${i}`} className={i < 2 ? "border border-[#767681] bg-[#fdd34d]" : "border border-[#767681]"} />
-                        ))}
-                      </div>
-                      <span className="text-[8px] font-bold text-[#001456] sm:text-base lg:text-2xl">
-                        4/8
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <HeroPresentationShowcase />
               </div>
             </div>
             <p className="absolute bottom-2 right-1/2 text-center text-[7px] font-bold tracking-[1.2px] text-[#666] uppercase sm:pt-2 sm:text-xs">
