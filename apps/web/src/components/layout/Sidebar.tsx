@@ -1,4 +1,4 @@
-import { FolderOpen, PlusCircle, Sparkles } from "lucide-react";
+import { FolderOpen, PlusCircle } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
