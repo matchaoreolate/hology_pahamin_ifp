@@ -30,10 +30,6 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <button className="flex items-center justify-center gap-2 rounded-md border border-input bg-card px-4 py-2 font-mono text-xs font-medium text-foreground transition-colors hover:bg-secondary">
-        <Sparkles size={14} />
-        Bantu Saya
-      </button>
     </aside>
   );
 }

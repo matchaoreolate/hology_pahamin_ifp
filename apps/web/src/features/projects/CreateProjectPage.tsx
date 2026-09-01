@@ -38,6 +38,12 @@ const faseOptions = ["Fase A (Kelas 1-2)", "Fase B (Kelas 3-4)", "Fase C (Kelas 
 export function CreateProjectPage() {
   const navigate = useNavigate();
   const [selectedOutputs, setSelectedOutputs] = useState<OutputType[]>(["presentation"]);
+  const [durasiMenit, setDurasiMenit] = useState("");
+
+  const durasiValue = Number(durasiMenit);
+  const isDurasiInvalid =
+    durasiMenit.length > 0 &&
+    (!Number.isInteger(durasiValue) || durasiValue <= 0 || durasiValue > 180);
 
   function toggleOutput(output: OutputType) {
     setSelectedOutputs((prev) =>
@@ -101,7 +107,34 @@ export function CreateProjectPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
+                <Label>Jam Pelajaran (menit)</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={180}
+                    step={1}
+                    inputMode="numeric"
+                    placeholder="30 menit"
+                    value={durasiMenit}
+                    onChange={(e) => setDurasiMenit(e.target.value)}
+                    aria-invalid={isDurasiInvalid}
+                    className={cn("pr-14", isDurasiInvalid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {durasiMenit.length > 0 && (
+                    <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
+                      menit
+                    </span>
+                  )}
+                </div>
+                {isDurasiInvalid && (
+                  <p className="text-xs text-destructive">
+                    Durasi harus berupa bilangan bulat antara 1 dan 180 menit.
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
                 <Label>Materi/Topik Utama</Label>
                 <Input placeholder="Cth: Sistem Tata Surya" />
               </div>

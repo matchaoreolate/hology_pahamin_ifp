@@ -7,7 +7,7 @@ export interface LearningContext {
   mata_pelajaran: string;
   topik: string;
   tujuan_pembelajaran: string;
-  alokasi_waktu_jp: number;
+  alokasi_waktu_menit: number;
   fokus_pendekatan?: string[] | null;
   konteks_geografis?: string | null;
   level_kemampuan_kelas?: string | null;
