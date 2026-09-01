@@ -6,6 +6,7 @@ import {
   Sparkles,
   Wifi,
 } from "lucide-react";
+import { ReactLenis } from "lenis/react";
 import { Link } from "react-router-dom";
 
 import { HeroPresentationShowcase } from "./showcase/HeroPresentationShowcase";
@@ -36,6 +37,7 @@ const steps = [
 
 export function LandingPage() {
   return (
+    <ReactLenis root options={{ anchors: true }}>
     <div className="min-h-screen overflow-x-clip bg-white text-[#454650]">
       {/* Floating nav */}
       <header className="fixed top-6 left-1/2 z-20 flex w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/40 bg-white/60 px-6 py-2 shadow-lg backdrop-blur-md">
@@ -79,7 +81,14 @@ export function LandingPage() {
 
           <div className="relative z-[1] flex max-w-5xl flex-col items-center gap-4 py-6 pb-10  text-center">
             <h1 className="text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl">
-              Platform untuk Kelas Interaktif
+              Platform untuk{" "}
+              <span className="relative inline-block">
+                <span
+                  aria-hidden="true"
+                  className="absolute -inset-x-2 top-8 bottom-2 -z-10 bg-[#fdd34d]"
+                />
+                Kelas Interaktif
+              </span>
             </h1>
             <p className="text-lg text-[#454650]">
               Buat media pembelajaran dengan AI dan gunakan langsung di TV interaktif kelas.
@@ -105,13 +114,13 @@ export function LandingPage() {
           {/* IFP mockup — locked to 16:9, small on mobile, large on desktop */}
           <div className="relative z-[1] w-full max-w-[320px] sm:max-w-[560px] lg:max-w-[1000px]">
             <div className="aspect-video w-full rounded-xl border-4 sm:rounded-2xl sm:border-6 lg:rounded-3xl lg:border-8 border-[#333] bg-[#1a1a1a] p-1.5 sm:p-3 lg:p-6 shadow-xl">
-              <div className="flex size-full flex-col overflow-hidden rounded-lg sm:rounded-xl bg-[#fbf9f5] p-3 sm:p-6 lg:p-12">
-                <div className="mb-1 flex justify-end gap-2 sm:mb-4 sm:gap-4 text-[#767681]">
-                  <span className="flex items-center gap-1 text-[8px] sm:text-xs lg:text-sm">
+              <div className="flex size-full flex-col overflow-hidden rounded-lg sm:rounded-xl bg-[#fbf9f5] p-3 sm:p-6 lg:p-10">
+                <div className="flex justify-end gap-2 sm:gap-4 text-[#767681]">
+                  <span className="flex items-center gap-2 text-[8px] sm:text-xs lg:text-sm">
                     <Wifi className="size-2.5 sm:size-3.5" />
                     05:00
                   </span>
-                  <BatteryFull className="size-2.5 sm:size-3.5" />
+                  <BatteryFull className="size-4 sm:size-6" />
                 </div>
                 <HeroPresentationShowcase />
               </div>
@@ -126,7 +135,7 @@ export function LandingPage() {
         {/* PROBLEM */}
         <section
           id="tentang"
-          className="mx-auto flex max-w-[1280px] scroll-mt-28 flex-col items-center gap-12 px-10 py-24 md:flex-row"
+          className="mx-auto flex max-w-7xl scroll-mt-28 flex-col items-center gap-12 px-10 py-24 md:flex-row"
         >
           <div className="flex-1">
             <h2 className="mb-6 text-4xl leading-tight font-bold tracking-tight text-[#001456]">
@@ -134,7 +143,7 @@ export function LandingPage() {
             </h2>
             <p className="text-lg leading-relaxed text-[#454650]">
               Membuat media pembelajaran yang menarik membutuhkan waktu. Padahal, guru punya banyak hal lain yang harus disiapkan.
-              PahamIn membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
+              <br /> <strong> PahamIn </strong> membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
             </p>
           </div>
           <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-12">
@@ -177,9 +186,9 @@ export function LandingPage() {
                   Presentasi interaktif untuk digunakan langsung di TV kelas.
                 </p>
               </div>
-              <button className="relative z-[2] mt-8 flex size-12 items-center justify-center rounded-full bg-white text-[#001456]">
+              {/* <button className="relative z-[2] mt-8 flex size-12 items-center justify-center rounded-full bg-white text-[#001456]">
                 <ArrowRight size={18} />
-              </button>
+              </button> */}
             </div>
 
             <div className="flex flex-col gap-6 md:col-span-5">
@@ -187,14 +196,14 @@ export function LandingPage() {
               <div className="relative flex min-h-[213px] items-start justify-between overflow-hidden rounded-[32px] bg-[#fdd34d] p-8 shadow-md">
                 <div className="relative z-[2] flex flex-col justify-between gap-4">
                   <div>
-                    <h3 className="mb-1 text-2xl font-bold text-[#725b00]">LKPD</h3>
+                    <h3 className="mb-1 text-2xl font-bold text-[#362B00]">LKPD</h3>
                     <p className="text-base text-[#725b00]/80">
                       Lembar kerja peserta didik siap cetak atau digital.
                     </p>
                   </div>
-                  <button className="flex size-10 items-center justify-center rounded-full bg-[#725b00] text-[#fdd34d]">
+                  {/* <button className="flex size-10 items-center justify-center rounded-full bg-[#725b00] text-[#fdd34d]">
                     <ArrowRight size={16} />
-                  </button>
+                  </button> */}
                 </div>
                 <img
                   src="/LKPD.png"
@@ -212,9 +221,9 @@ export function LandingPage() {
                       Bahan ajar digital yang menarik dan mudah dibaca.
                     </p>
                   </div>
-                  <button className="flex size-10 items-center justify-center rounded-full bg-[#002107] text-[#90d792]">
+                  {/* <button className="flex size-10 items-center justify-center rounded-full bg-[#002107] text-[#90d792]">
                     <ArrowRight size={16} />
-                  </button>
+                  </button> */}
                 </div>
                 <img
                   src="/EBOOK.png"
@@ -304,5 +313,6 @@ export function LandingPage() {
         </div>
       </footer>
     </div>
+    </ReactLenis>
   );
 }

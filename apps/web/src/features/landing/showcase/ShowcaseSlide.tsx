@@ -8,7 +8,7 @@ interface ShowcaseSlideProps {
 
 export function ShowcaseSlide({ slide, onNext }: ShowcaseSlideProps) {
   return (
-    <div className="animate-in fade-in slide-in-from-right-2 flex flex-1 items-center justify-between gap-2 duration-300 sm:gap-8">
+    <div className="flex h-full min-w-0 shrink-0 grow-0 basis-full items-center justify-between gap-2 sm:gap-8">
       <div className="max-w-[60%] lg:max-w-[428px]">
         <p className="mb-0.5 text-[7px] font-bold tracking-wide text-[#001456] sm:mb-2 sm:text-xs lg:text-sm">
           {slide.subject}
@@ -26,7 +26,7 @@ export function ShowcaseSlide({ slide, onNext }: ShowcaseSlideProps) {
           Selanjutnya
         </button>
       </div>
-      <div className="flex shrink-0 items-center justify-center">
+      <div className="flex shrink-0 px-10 items-center justify-center">
         <ShowcaseVisual visual={slide.visual} />
       </div>
     </div>
