@@ -1,5 +1,5 @@
 import { BookOpen, MonitorPlay, Plus, ScrollText } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { getLearningContext } from "@/lib/api/contexts";
+import { getProjects } from "@/lib/api/projects";
+import type { ApiError, LearningContextApiResponse, MediaProjectApiResponse } from "@/types/api";
 import type { OutputType } from "@/types/domain";
-
-import { mockProjects } from "../projects/mock";
 
 const filters = ["Semua", "Presentasi", "LKPD", "E-book"] as const;
 
@@ -20,35 +21,86 @@ const outputMeta: Record<OutputType, { label: string; icon: typeof MonitorPlay }
   ebook: { label: "E-book", icon: BookOpen },
 };
 
-const stats = [
-  { label: "TOTAL MODUL", value: mockProjects.length },
-  {
-    label: "PRESENTASI",
-    value: mockProjects.filter((p) => p.selected_outputs.includes("presentation")).length,
-  },
-  {
-    label: "LKPD AKTIF",
-    value: mockProjects.filter((p) => p.selected_outputs.includes("lkpd")).length,
-  },
-  {
-    label: "E-BOOK",
-    value: mockProjects.filter((p) => p.selected_outputs.includes("ebook")).length,
-  },
-];
-
 function outputRouteFor(output: OutputType) {
   return output === "presentation" ? "presentation" : output;
 }
 
+function formatUpdatedLabel(isoDate: string): string {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return "Terakhir diubah: baru saja";
+  if (minutes < 60) return `Terakhir diubah: ${minutes} menit lalu`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Terakhir diubah: ${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  return `Terakhir diubah: ${days} hari lalu`;
+}
+
+interface ProjectRow {
+  project: MediaProjectApiResponse;
+  context: LearningContextApiResponse | null;
+}
+
 export function DashboardPage() {
   const [filter, setFilter] = useState<(typeof filters)[number]>("Semua");
+  const [rows, setRows] = useState<ProjectRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<ApiError | null>(null);
 
-  const visibleProjects = mockProjects.filter((project) => {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const projects = await getProjects();
+        const withContext = await Promise.all(
+          projects.map(async (project) => {
+            try {
+              const context = await getLearningContext(project.learning_context_id);
+              return { project, context };
+            } catch {
+              return { project, context: null };
+            }
+          }),
+        );
+        if (!cancelled) setRows(withContext);
+      } catch (err) {
+        if (!cancelled) setError(err as ApiError);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visibleRows = rows.filter(({ project }) => {
     if (filter === "Semua") return true;
     if (filter === "Presentasi") return project.selected_outputs.includes("presentation");
     if (filter === "LKPD") return project.selected_outputs.includes("lkpd");
     return project.selected_outputs.includes("ebook");
   });
+
+  const stats = [
+    { label: "TOTAL MODUL", value: rows.length },
+    {
+      label: "PRESENTASI",
+      value: rows.filter(({ project }) => project.selected_outputs.includes("presentation")).length,
+    },
+    {
+      label: "LKPD AKTIF",
+      value: rows.filter(({ project }) => project.selected_outputs.includes("lkpd")).length,
+    },
+    {
+      label: "E-BOOK",
+      value: rows.filter(({ project }) => project.selected_outputs.includes("ebook")).length,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background pt-16 pl-64">
@@ -86,62 +138,70 @@ export function DashboardPage() {
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-6 pb-6">
-          {visibleProjects.map((project) => (
-            <Card key={project.id} className="w-[309px]">
-              <CardHeader className="gap-2">
-                <div className="flex gap-2">
-                  <Badge>{project.mata_pelajaran}</Badge>
-                  <Badge>{project.kelas}</Badge>
-                </div>
-                <h3 className="text-xl font-medium text-foreground">{project.title}</h3>
-              </CardHeader>
-              <CardContent>
-                <span className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
-                  Tersedia:
-                </span>
-                <div className="flex gap-2">
-                  {project.selected_outputs.map((output) => {
-                    const meta = outputMeta[output];
-                    const Icon = meta.icon;
-                    return (
-                      <span
-                        key={output}
-                        className="flex items-center gap-1 rounded-md border border-border px-2 py-1 font-mono text-[11px] text-foreground"
-                      >
-                        <Icon size={11} />
-                        {meta.label}
-                      </span>
-                    );
-                  })}
-                </div>
-              </CardContent>
-              <CardFooter>
-                <span className="font-mono text-[11px] text-muted-foreground">
-                  {project.updated_label}
-                </span>
-                <Link
-                  to={`/projects/${project.id}/${outputRouteFor(project.selected_outputs[0])}`}
-                >
-                  <Button variant="secondary" size="sm">
-                    Buka →
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
+        {error && (
+          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            Gagal memuat daftar materi: {error.detail}
+          </p>
+        )}
 
-          <Link
-            to="/projects/new"
-            className="flex min-h-[250px] w-[309px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-secondary/40 px-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
-          >
-            <Plus size={32} className="text-muted-foreground" />
-            <h3 className="text-xl font-medium text-foreground">Buat Materi Baru</h3>
-            <p className="text-sm text-muted-foreground">
-              Belum ada materi lain? Mulai buat modul pembelajaran interaktif sekarang.
-            </p>
-          </Link>
-        </div>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Memuat materi...</p>
+        ) : (
+          <div className="flex flex-wrap gap-6 pb-6">
+            {visibleRows.map(({ project, context }) => (
+              <Card key={project.id} className="w-[309px]">
+                <CardHeader className="gap-2">
+                  <div className="flex gap-2">
+                    <Badge>{context?.mata_pelajaran ?? "-"}</Badge>
+                    <Badge>{context ? `Kelas ${context.kelas}` : "-"}</Badge>
+                  </div>
+                  <h3 className="text-xl font-medium text-foreground">{project.title}</h3>
+                </CardHeader>
+                <CardContent>
+                  <span className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
+                    Tersedia:
+                  </span>
+                  <div className="flex gap-2">
+                    {project.selected_outputs.map((output) => {
+                      const meta = outputMeta[output];
+                      const Icon = meta.icon;
+                      return (
+                        <span
+                          key={output}
+                          className="flex items-center gap-1 rounded-md border border-border px-2 py-1 font-mono text-[11px] text-foreground"
+                        >
+                          <Icon size={11} />
+                          {meta.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    {formatUpdatedLabel(project.updated_at)}
+                  </span>
+                  <Link to={`/projects/${project.id}/${outputRouteFor(project.selected_outputs[0])}`}>
+                    <Button variant="secondary" size="sm">
+                      Buka →
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+
+            <Link
+              to="/projects/new"
+              className="flex min-h-[250px] w-[309px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-secondary/40 px-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
+            >
+              <Plus size={32} className="text-muted-foreground" />
+              <h3 className="text-xl font-medium text-foreground">Buat Materi Baru</h3>
+              <p className="text-sm text-muted-foreground">
+                Belum ada materi lain? Mulai buat modul pembelajaran interaktif sekarang.
+              </p>
+            </Link>
+          </div>
+        )}
 
         <div className="border-t border-border pt-6">
           <h2 className="mb-4 text-xl font-medium text-foreground">Statistik Materi</h2>
