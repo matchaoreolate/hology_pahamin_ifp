@@ -2,7 +2,6 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AppHeader } from "@/components/layout/AppHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,13 +22,13 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col justify-between bg-background pt-16">
-      <AppHeader variant="landing" />
+      {/* <AppHeader variant="landing" /> */}
 
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="flex w-full max-w-[448px] flex-col gap-8">
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">PahamIn</h1>
-            <p className="text-sm text-muted-foreground">Teaching Assistant AI</p>
+            {/* <p className="text-sm text-muted-foreground">Teaching Assistant AI</p> */}
           </div>
 
           <Tabs

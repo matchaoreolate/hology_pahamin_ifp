@@ -17,11 +17,11 @@ export function PresentationNavigation({
 }: PresentationNavigationProps) {
   if (variant === "floating") {
     return (
-      <div className="flex items-center gap-8 rounded-full border border-border bg-card px-6 py-3 shadow-lg">
+      <div className="flex items-center gap-8 rounded-full border border-border bg-card px-4 py-2 shadow-lg">
         <button
           onClick={onPrev}
           disabled={current === 0}
-          className="flex size-14 items-center justify-center rounded-full border-2 border-primary bg-card text-foreground transition-colors hover:bg-secondary disabled:opacity-30"
+          className="flex size-12 items-center justify-center rounded-full border-2 border-primary bg-card text-foreground transition-colors hover:bg-secondary disabled:opacity-30"
         >
           <ChevronLeft size={20} />
         </button>
@@ -38,7 +38,7 @@ export function PresentationNavigation({
         <button
           onClick={onNext}
           disabled={current === total - 1}
-          className="flex size-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
+          className="flex size-12 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
         >
           <ChevronRight size={20} />
         </button>
@@ -47,7 +47,7 @@ export function PresentationNavigation({
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-md border border-border bg-card px-4 py-2">
+    <div className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2">
       <button
         onClick={onPrev}
         disabled={current === 0}

@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   BatteryFull,
   FileEdit,
   MonitorPlay,
@@ -9,6 +8,7 @@ import {
 import { ReactLenis } from "lenis/react";
 import { Link } from "react-router-dom";
 
+import { MobileNav } from "./MobileNav";
 import { HeroPresentationShowcase } from "./showcase/HeroPresentationShowcase";
 
 const steps = [
@@ -39,8 +39,11 @@ export function LandingPage() {
   return (
     <ReactLenis root options={{ anchors: true }}>
     <div className="min-h-screen overflow-x-clip bg-white text-[#454650]">
-      {/* Floating nav */}
-      <header className="fixed top-6 left-1/2 z-20 flex w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/40 bg-white/60 px-6 py-2 shadow-lg backdrop-blur-md">
+      {/* Mobile nav: simple full-width bar + hamburger dropdown */}
+      <MobileNav />
+
+      {/* Desktop nav: floating pill */}
+      <header className="fixed top-6 left-1/2 z-20 hidden w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/40 bg-white/60 px-6 py-2 shadow-lg backdrop-blur-md sm:flex">
         <Link
           to="/"
           className="flex items-center gap-2 text-2xl font-extrabold text-[#001456]"
@@ -75,8 +78,8 @@ export function LandingPage() {
         <section className="relative flex flex-col items-center overflow-hidden px-10 pt-32 pb-12">
           <div className="absolute top-10 left-10 size-24 rounded-full bg-[#fdd34d] opacity-80" />
           <div className="absolute top-10 right-20 h-32 w-16 bg-[#fdd34d] opacity-90" />
-          <div className="absolute top-48 right-10 size-48 rounded-full border-4 border-[#001456] opacity-50" />
-          <div className="absolute right-0 bottom-20 size-64 rounded-l-full bg-[#001456] opacity-90" />
+          <div className="hidden sm:block absolute top-48 right-10 size-48 rounded-full border-4 border-[#001456] opacity-50" />
+          <div className="hidden sm:block absolute -right-20 bottom-20 size-64 rounded-l-full bg-[#001456] opacity-90" />
 
 
           <div className="relative z-[1] flex max-w-5xl flex-col items-center gap-4 py-6 pb-10  text-center">
@@ -146,7 +149,7 @@ export function LandingPage() {
               <br /> <strong> PahamIn </strong> membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
             </p>
           </div>
-          <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-12">
+          <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-40 sm:p-12">
             <img
               src="/landing/problem-illustration.png"
               alt="Ilustrasi guru kewalahan menyiapkan materi ajar"
@@ -273,8 +276,8 @@ export function LandingPage() {
 
         {/* FINAL CTA */}
         <section className="relative overflow-hidden bg-[#001456] py-24">
-          <div className="absolute top-1/2 left-[-187px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90" />
-          <div className="absolute top-[calc(50%-27px)] right-[-140px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90" />
+          <div className="hidden sm:block absolute  top-1/2 left-[-187px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90" />
+          <div className="hidden sm:block absolute  top-[calc(50%-27px)] right-[-140px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90" />
           <div className="relative z-[1] mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-10 text-center">
             <h2 className="text-4xl font-bold text-white">
               Cobain Sekarang!

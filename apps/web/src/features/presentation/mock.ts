@@ -7,7 +7,7 @@ export const mockPresentation: PresentationArtifact = {
     mata_pelajaran: "IPAS",
     topik: "Siklus Air",
     fase: "Fase C",
-    total_slides: 7,
+    total_slides: 9,
   },
   slides: [
     {
@@ -112,6 +112,69 @@ export const mockPresentation: PresentationArtifact = {
     {
       id: "slide-7",
       order: 7,
+      type: "interactive",
+      title: "Tantangan 4: Cocokkan Istilah",
+      interaction: {
+        type: "matching",
+        instruction: "Pasangkan istilah dengan penjelasannya yang tepat!",
+        pairs: [
+          {
+            id: "pair-1",
+            left: { id: "term-evaporasi", label: "Evaporasi" },
+            right: { id: "def-evaporasi", label: "Air berubah menjadi uap karena panas matahari" },
+          },
+          {
+            id: "pair-2",
+            left: { id: "term-kondensasi", label: "Kondensasi" },
+            right: { id: "def-kondensasi", label: "Uap air mendingin dan membentuk awan" },
+          },
+          {
+            id: "pair-3",
+            left: { id: "term-presipitasi", label: "Presipitasi" },
+            right: { id: "def-presipitasi", label: "Titik air jatuh ke bumi sebagai hujan" },
+          },
+        ],
+        feedback: {
+          correct: "Mantap! Semua istilah berhasil dipasangkan dengan tepat.",
+          incorrect: "Masih ada pasangan yang belum pas, coba periksa lagi ya.",
+        },
+      },
+    },
+    {
+      id: "slide-8",
+      order: 8,
+      type: "interactive",
+      title: "Tantangan 5: Susun ke Tempatnya",
+      interaction: {
+        type: "drag_drop",
+        instruction: "Seret setiap peristiwa ke tahapan siklus air yang sesuai!",
+        items: [
+          { id: "item-laut", label: "Air laut menguap terkena panas" },
+          { id: "item-awan", label: "Uap air berkumpul membentuk awan" },
+          { id: "item-hujan", label: "Titik air jatuh sebagai hujan" },
+          { id: "item-sungai", label: "Air mengalir kembali ke sungai dan laut" },
+        ],
+        targets: [
+          { id: "target-evaporasi", label: "Evaporasi" },
+          { id: "target-kondensasi", label: "Kondensasi" },
+          { id: "target-presipitasi", label: "Presipitasi" },
+          { id: "target-pengumpulan", label: "Pengumpulan" },
+        ],
+        answers: [
+          { item_id: "item-laut", target_id: "target-evaporasi" },
+          { item_id: "item-awan", target_id: "target-kondensasi" },
+          { item_id: "item-hujan", target_id: "target-presipitasi" },
+          { item_id: "item-sungai", target_id: "target-pengumpulan" },
+        ],
+        feedback: {
+          correct: "Luar biasa! Kamu berhasil menyusun seluruh siklus air dengan benar.",
+          incorrect: "Belum semua tepat, yuk coba susun ulang tahapannya.",
+        },
+      },
+    },
+    {
+      id: "slide-9",
+      order: 9,
       type: "closing",
       title: "Mari Menjaga Kelestarian Air",
       content: "Air di bumi terus berputar dan tidak pernah bertambah atau berkurang. Mari gunakan air bersih secara bijak setiap hari!",

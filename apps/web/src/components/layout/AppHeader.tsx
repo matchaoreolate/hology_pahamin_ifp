@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -29,13 +28,13 @@ export function AppHeader({ variant = "app" }: AppHeaderProps) {
         </Link>
       ) : (
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 rounded-md border border-input bg-card px-3 py-1.5">
+          {/* <div className="flex items-center gap-2 rounded-md border border-input bg-card px-3 py-1.5">
             <Search size={14} className="text-muted-foreground" />
             <input
               placeholder="Search..."
               className="w-48 bg-transparent font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
-          </div>
+          </div> */}
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary font-mono text-xs font-medium text-muted-foreground">
               BG
