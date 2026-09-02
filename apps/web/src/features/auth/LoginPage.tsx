@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { login, register } from "@/lib/api/auth";
+import type { ApiError } from "@/types/api";
 
 type Tab = "masuk" | "daftar";
 
@@ -15,9 +17,49 @@ export function LoginPage() {
   const [tab, setTab] = useState<Tab>("masuk");
   const navigate = useNavigate();
 
-  function handleSubmit(e: FormEvent) {
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerError, setRegisterError] = useState<string | null>(null);
+  const [registerLoading, setRegisterLoading] = useState(false);
+
+  async function handleLoginSubmit(e: FormEvent) {
     e.preventDefault();
-    navigate("/dashboard");
+    setLoginError(null);
+    setLoginLoading(true);
+    try {
+      await login({ email: loginEmail, password: loginPassword });
+      navigate("/dashboard");
+    } catch (err) {
+      setLoginError((err as ApiError).detail);
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  async function handleRegisterSubmit(e: FormEvent) {
+    e.preventDefault();
+    setRegisterError(null);
+    setRegisterLoading(true);
+    try {
+      await register({
+        full_name: registerName,
+        email: registerEmail,
+        password: registerPassword,
+      });
+      // Registration doesn't log the user in — sign them in right after.
+      await login({ email: registerEmail, password: registerPassword });
+      navigate("/dashboard");
+    } catch (err) {
+      setRegisterError((err as ApiError).detail);
+    } finally {
+      setRegisterLoading(false);
+    }
   }
 
   return (
@@ -27,7 +69,7 @@ export function LoginPage() {
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="flex w-full max-w-[448px] flex-col gap-8">
           <div className="flex flex-col items-center gap-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">PahamIn</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">Selamat datang Guru!</h1>
             {/* <p className="text-sm text-muted-foreground">Teaching Assistant AI</p> */}
           </div>
 
@@ -42,14 +84,26 @@ export function LoginPage() {
             </TabsList>
 
             <TabsContent value="masuk">
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-10 py-8">
+              <form onSubmit={handleLoginSubmit} className="flex flex-col gap-6 px-10 py-8">
                 <div className="flex flex-col gap-1.5">
                   <Label>Email</Label>
-                  <Input type="email" placeholder="nama@institusi.edu" />
+                  <Input
+                    type="email"
+                    placeholder="nama@institusi.edu"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label>Password</Label>
-                  <Input type="password" placeholder="••••••••" />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -60,28 +114,58 @@ export function LoginPage() {
                     Lupa Password?
                   </a> */}
                 </div>
-                <Button type="submit" variant="primary" className="h-11 w-full text-sm normal-case">
-                  Masuk Sistem
+                {loginError && <p className="text-sm text-destructive">{loginError}</p>}
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="h-11 w-full text-sm normal-case"
+                  disabled={loginLoading}
+                >
+                  {loginLoading ? "Memproses..." : "Masuk"}
                 </Button>
               </form>
             </TabsContent>
 
             <TabsContent value="daftar">
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-10 py-8">
+              <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6 px-10 py-8">
                 <div className="flex flex-col gap-1.5">
                   <Label>Nama</Label>
-                  <Input type="text" placeholder="Nama lengkap" />
+                  <Input
+                    type="text"
+                    placeholder="Nama lengkap"
+                    value={registerName}
+                    onChange={(e) => setRegisterName(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label>Email</Label>
-                  <Input type="email" placeholder="nama@institusi.edu" />
+                  <Input
+                    type="email"
+                    placeholder="nama@institusi.edu"
+                    value={registerEmail}
+                    onChange={(e) => setRegisterEmail(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label>Password</Label>
-                  <Input type="password" placeholder="••••••••" />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <Button type="submit" variant="primary" className="h-11 w-full text-sm normal-case">
-                  Daftar Sekarang
+                {registerError && <p className="text-sm text-destructive">{registerError}</p>}
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="h-11 w-full text-sm normal-case"
+                  disabled={registerLoading}
+                >
+                  {registerLoading ? "Memproses..." : "Daftar Sekarang"}
                 </Button>
               </form>
             </TabsContent>

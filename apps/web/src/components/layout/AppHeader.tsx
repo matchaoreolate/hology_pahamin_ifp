@@ -1,12 +1,44 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { getCurrentUser, isAuthenticated, logout } from "@/lib/api/auth";
+import type { UserResponse } from "@/types/api";
 
 interface AppHeaderProps {
   variant?: "landing" | "app";
 }
 
+function initialsOf(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  const initials = parts.slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "");
+  return initials.join("") || "?";
+}
+
 export function AppHeader({ variant = "app" }: AppHeaderProps) {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserResponse | null>(null);
+
+  useEffect(() => {
+    if (variant !== "app" || !isAuthenticated()) return;
+    let cancelled = false;
+    getCurrentUser()
+      .then((data) => {
+        if (!cancelled) setUser(data);
+      })
+      .catch(() => {
+        // Stale/invalid token — client.ts already clears it on 401; header just stays blank.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [variant]);
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm">
       <div className="flex items-center gap-6">
@@ -37,13 +69,17 @@ export function AppHeader({ variant = "app" }: AppHeaderProps) {
           </div> */}
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary font-mono text-xs font-medium text-muted-foreground">
-              BG
+              {user ? initialsOf(user.full_name) : "?"}
             </div>
-            <span className="font-mono text-xs text-foreground">Budi Guru</span>
+            <span className="font-mono text-xs text-foreground">{user?.full_name ?? "Guru"}</span>
           </div>
-          <Link to="/" className="font-mono text-xs text-muted-foreground transition-colors hover:text-foreground">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
             Logout
-          </Link>
+          </button>
         </div>
       )}
     </header>
