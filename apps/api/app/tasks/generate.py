@@ -14,6 +14,7 @@ from app.repositories.output_repository import OutputRepository
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.presentation_artifact import PresentationArtifact
 from app.services.ai.gemini_service import gemini_service
+from app.services.ai.visual_asset_pipeline import enrich_with_images
 from app.services.prompts.context_builder import LearningContextData
 from app.services.prompts.ebook_prompt import build_ebook_prompt
 from app.services.prompts.lkpd_prompt import build_lkpd_prompt
@@ -112,8 +113,25 @@ async def _generate_output(project_id: str, output_type: str, config: dict):
 
         try:
             content = await gemini_service.generate(prompt, context_label=f"{output_type}_{project_id}")
+
             if output_type == "presentation":
-                content = PresentationArtifact.model_validate(content).model_dump(mode="json")
+                # Step 1: Validate raw Gemini output against schema
+                artifact = PresentationArtifact.model_validate(content)
+                log.info("Presentation artifact validated", slides=len(artifact.slides))
+
+                # Step 2: Visual asset enrichment (deterministic decision layer + Gemini Imagen)
+                # Failures are per-slide and non-fatal — artifact remains valid even if all images fail
+                try:
+                    artifact = await enrich_with_images(
+                        artifact,
+                        mata_pelajaran=ctx_data.mata_pelajaran,
+                        fase=ctx_data.fase,
+                    )
+                except Exception as img_err:
+                    log.warning("Image enrichment pipeline failed entirely — continuing without images", error=str(img_err))
+
+                # Step 3: Final validation before persist
+                content = PresentationArtifact.model_validate(artifact.model_dump(mode="json")).model_dump(mode="json")
 
             output.content = content
             output.status = "done"

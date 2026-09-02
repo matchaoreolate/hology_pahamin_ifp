@@ -80,3 +80,35 @@ def test_lkpd_local_context_injected():
     ctx = make_ctx(konteks_geografis="pesisir")
     prompt = build_lkpd_prompt(ctx, {"injeksi_konteks_lokal": True, "jumlah_soal": 10})
     assert "pesisir" in prompt
+
+
+def test_presentation_prompt_contains_drag_drop():
+    """Fix #1: prompt must mention drag_drop as a valid interaction primitive."""
+    ctx = make_ctx()
+    prompt = build_presentation_prompt(ctx, {})
+    assert "drag_drop" in prompt, "drag_drop must appear in prompt interaction rules"
+
+
+def test_presentation_prompt_does_not_forbid_drag_drop():
+    """Fix #1: prompt must NOT have a line prohibiting drag_drop."""
+    ctx = make_ctx()
+    prompt = build_presentation_prompt(ctx, {})
+    # Old prompt had: 'DILARANG menciptakan tipe interaksi baru di luar choice, matching, sorting, reveal'
+    assert "di luar choice, matching, sorting, reveal" not in prompt, \
+        "old prohibition must be removed — drag_drop is now a valid primitive"
+
+
+def test_presentation_prompt_visual_slide_no_url_hallucination():
+    """Fix #2: prompt must instruct Gemini to output assets:[] for visual slides, not hallucinate URLs."""
+    ctx = make_ctx()
+    prompt = build_presentation_prompt(ctx, {})
+    assert "assets: []" in prompt or "assets:[]" in prompt or "DILARANG mengarang URL" in prompt, \
+        "prompt must prevent URL hallucination for visual slide assets"
+
+
+def test_presentation_prompt_mode_seimbang_includes_drag_drop():
+    """Fix #1: mode_dinamika=seimbang must mention drag_drop in mode instructions."""
+    ctx = make_ctx()
+    prompt = build_presentation_prompt(ctx, {"mode_dinamika": "seimbang"})
+    assert "drag_drop" in prompt
+
