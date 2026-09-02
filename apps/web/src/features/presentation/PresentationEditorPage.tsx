@@ -1,26 +1,70 @@
 import { Download, Play, Plus, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
 import { Button } from "@/components/ui/button";
+import { getPresentation } from "@/lib/api/outputs";
 import { cn } from "@/lib/utils";
+import type { ApiError } from "@/types/api";
 
 import { PresentationNavigation } from "./components/PresentationNavigation";
 import { SlideViewport } from "./components/SlideViewport";
-import { mockPresentation } from "./mock";
+import type { PresentationArtifact } from "./types";
 
 export function PresentationEditorPage() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
-  const slide = mockPresentation.slides[current];
+  const [artifact, setArtifact] = useState<PresentationArtifact | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  useEffect(() => {
+    if (!projectId) return;
+    let cancelled = false;
+    setArtifact(null);
+    setError(null);
+    setCurrent(0);
+
+    getPresentation(projectId)
+      .then((data) => {
+        if (!cancelled) setArtifact(data);
+      })
+      .catch((err: ApiError) => {
+        if (!cancelled) setError(err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-secondary/40 pt-16">
+        <p className="text-sm text-destructive">Gagal memuat presentasi: {error.detail}</p>
+        <Button variant="secondary" size="sm" onClick={() => navigate("/dashboard")}>
+          Kembali ke Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  if (!artifact) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-secondary/40 pt-16">
+        <p className="text-sm text-muted-foreground">Memuat presentasi...</p>
+      </div>
+    );
+  }
+
+  const slide = artifact.slides[current];
 
   return (
     <div className="min-h-screen bg-secondary/40 pt-16">
       <EditorHeader
         backTo="/dashboard"
-        title="Proyek Tanpa Judul"
+        title={artifact.meta.title}
         subtitle={`Proyek: ${projectId}`}
         actions={
           <>
@@ -50,7 +94,7 @@ export function PresentationEditorPage() {
             </h3>
           </div>
           <div className="flex flex-1 flex-col gap-2 overflow-auto p-4">
-            {mockPresentation.slides.map((s, index) => (
+            {artifact.slides.map((s, index) => (
               <button
                 key={s.id}
                 onClick={() => setCurrent(index)}
@@ -95,9 +139,9 @@ export function PresentationEditorPage() {
 
           <PresentationNavigation
             current={current}
-            total={mockPresentation.slides.length}
+            total={artifact.slides.length}
             onPrev={() => setCurrent((c) => Math.max(0, c - 1))}
-            onNext={() => setCurrent((c) => Math.min(mockPresentation.slides.length - 1, c + 1))}
+            onNext={() => setCurrent((c) => Math.min(artifact.slides.length - 1, c + 1))}
           />
         </main>
       </div>
