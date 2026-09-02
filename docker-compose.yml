@@ -23,6 +23,7 @@ services:
       - ./apps/api/app:/app/app               # Hot reload in dev
       - ./apps/api/tests:/app/tests           # Test files live sync
       - ./apps/api/migrations:/app/migrations # Alembic migrations sync
+      - ./apps/api/scripts:/app/scripts       # Scripts sync
     command: >
       uvicorn app.main:app
       --host 0.0.0.0

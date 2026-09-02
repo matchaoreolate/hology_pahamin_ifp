@@ -1,6 +1,11 @@
 export interface Asset {
   id: string;
   type: "image";
+  /** How this asset should be rendered by the FE.
+   *  "asset"      → rendered inline as part of the slide layout.
+   *  "fullscreen" → rendered as the primary visual occupying the full slide area.
+   *  Defaults to "asset" when absent (backward-compatible). */
+  display?: "asset" | "fullscreen";
   url: string;
   alt?: string;
 }
