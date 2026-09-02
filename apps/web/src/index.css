@@ -138,6 +138,26 @@
   --font-heading: "Roboto Variable", system-ui, sans-serif;
 }
 
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes shadow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 40px 0px rgba(57, 90, 199, 0.80);
+  }
+  50% {
+    box-shadow: 0 0 70px 12px rgba(57, 90, 199, 0.25);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
