@@ -58,6 +58,13 @@ class Settings(BaseSettings):
     GEMINI_MAX_OUTPUT_TOKENS: int = 8192
     GEMINI_TEMPERATURE: float = 0.7
 
+    # --- Image Generation ---
+    # Options: "gemini" (default) | "huggingface"
+    IMAGE_GENERATION_PROVIDER: str = "gemini"
+    # HuggingFace — only required when IMAGE_GENERATION_PROVIDER="huggingface"
+    HF_TOKEN: str = ""
+    HF_IMAGE_MODEL: str = "black-forest-labs/FLUX.1-schnell"
+
     # --- Storage (Supabase) ---
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
