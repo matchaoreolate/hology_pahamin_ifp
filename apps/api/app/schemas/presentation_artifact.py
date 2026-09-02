@@ -1,6 +1,11 @@
 """
 Pydantic schemas for PresentationArtifact (v0.2).
 Provides strict validation for AI generation output and deterministic FE rendering.
+
+Contract guarantees:
+- Asset.display distinguishes inline ("asset") from fullscreen ("fullscreen") usage.
+  FE uses this to decide render mode; `type` always describes *what* the asset is.
+- Interaction primitives: choice | matching | sorting | reveal | drag_drop
 """
 from typing import Annotated, Literal, Union
 from pydantic import BaseModel, Field
@@ -13,6 +18,9 @@ from pydantic import BaseModel, Field
 class Asset(BaseModel):
     id: str
     type: Literal["image"] = "image"
+    # "asset"     → image rendered as part of slide layout (inline)
+    # "fullscreen" → image intended to be rendered as the primary visual (full slide)
+    display: Literal["asset", "fullscreen"] = "asset"
     url: str
     alt: str | None = None
 
