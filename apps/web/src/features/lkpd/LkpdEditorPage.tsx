@@ -2,6 +2,7 @@ import { Download, Info, Play, Sparkles } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
+import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
 
 const questions = [
@@ -18,6 +19,7 @@ export function LkpdEditorPage() {
         backTo="/dashboard"
         title="Proyek Tanpa Judul"
         subtitle={`Proyek: ${projectId} • LKPD`}
+        centerContent={projectId ? <OutputSwitcher projectId={projectId} /> : undefined}
         actions={
           <>
             <Button variant="secondary" size="sm">

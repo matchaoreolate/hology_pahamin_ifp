@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
+import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
 import { getPresentation } from "@/lib/api/outputs";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,7 @@ export function PresentationEditorPage() {
         backTo="/dashboard"
         title={artifact.meta.title}
         subtitle={`Proyek: ${projectId}`}
+        centerContent={projectId ? <OutputSwitcher projectId={projectId} /> : undefined}
         actions={
           <>
             <Button variant="secondary" size="sm">

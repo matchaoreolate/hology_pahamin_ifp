@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
+import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ export function EbookEditorPage() {
         backTo="/dashboard"
         title={`Proyek: ${projectId}`}
         subtitle="E-book"
+        centerContent={projectId ? <OutputSwitcher projectId={projectId} /> : undefined}
         actions={
           <>
             <Button variant="secondary" size="sm">

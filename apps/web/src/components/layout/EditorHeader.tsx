@@ -7,11 +7,18 @@ interface EditorHeaderProps {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  centerContent?: ReactNode;
 }
 
-export function EditorHeader({ backTo, title, subtitle, actions }: EditorHeaderProps) {
+export function EditorHeader({
+  backTo,
+  title,
+  subtitle,
+  actions,
+  centerContent,
+}: EditorHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background px-6">
+    <header className="fixed top-0 left-0 right-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-4">
         <Link
           to={backTo}
@@ -24,6 +31,9 @@ export function EditorHeader({ backTo, title, subtitle, actions }: EditorHeaderP
           {subtitle && <p className="font-mono text-[11px] text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
+      {centerContent && (
+        <div className="absolute left-1/2 -translate-x-1/2">{centerContent}</div>
+      )}
       <div className="flex items-center gap-3">{actions}</div>
     </header>
   );
