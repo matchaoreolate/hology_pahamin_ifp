@@ -175,3 +175,9 @@
     font-family: var(--font-heading);
   }
 }
+
+/* intro.js ships its own font-stack — override so tours match the app's brand font. */
+.introjs-tooltip,
+.introjs-tooltip * {
+  font-family: var(--font-sans) !important;
+}

@@ -1,5 +1,7 @@
 import { BookOpen, MonitorPlay, Plus, ScrollText } from "lucide-react";
-import { useEffect, useState } from "react";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -41,11 +43,16 @@ interface ProjectRow {
   context: LearningContextApiResponse | null;
 }
 
+const ONBOARDING_SEEN_KEY = "pahamin_dashboard_onboarding_seen";
+
 export function DashboardPage() {
   const [filter, setFilter] = useState<(typeof filters)[number]>("Semua");
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
+
+  const projectListRef = useRef<HTMLDivElement>(null);
+  const createButtonRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,6 +85,38 @@ export function DashboardPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    if (localStorage.getItem(ONBOARDING_SEEN_KEY)) return;
+
+    const intro = introJs();
+    intro.setOptions({
+      steps: [
+        {
+          title: "Selamat Datang di PahamIn!",
+          intro: "Ini adalah Pusat Materi Anda — tempat mengelola semua media pembelajaran yang sudah dibuat.",
+        },
+        {
+          element: projectListRef.current ?? undefined,
+          title: "Daftar Materi",
+          intro: "Semua materi pembelajaran yang Anda buat akan muncul di sini.",
+        },
+        {
+          element: createButtonRef.current ?? undefined,
+          title: "Buat Materi Baru",
+          intro: "Klik tombol ini untuk mulai membuat materi pembelajaran baru dengan bantuan AI.",
+        },
+      ],
+      showBullets: true,
+      exitOnOverlayClick: false,
+      nextLabel: "Lanjut",
+      prevLabel: "Kembali",
+      doneLabel: "Selesai",
+    });
+    intro.onexit(() => localStorage.setItem(ONBOARDING_SEEN_KEY, "1"));
+    intro.start();
+  }, [loading]);
 
   const visibleRows = rows.filter(({ project }) => {
     if (filter === "Semua") return true;
@@ -130,7 +169,7 @@ export function DashboardPage() {
               </button>
             ))}
           </div>
-          <Link to="/projects/new">
+          <Link to="/projects/new" ref={createButtonRef}>
             <Button variant="primary" size="sm">
               <Plus size={13} />
               Materi Baru
@@ -138,6 +177,7 @@ export function DashboardPage() {
           </Link>
         </div>
 
+        <div ref={projectListRef}>
         {error && (
           <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             Gagal memuat daftar materi: {error.detail}
@@ -202,6 +242,7 @@ export function DashboardPage() {
             </Link>
           </div>
         )}
+        </div>
 
         <div className="border-t border-border pt-6">
           <h2 className="mb-4 text-xl font-medium text-foreground">Statistik Materi</h2>
