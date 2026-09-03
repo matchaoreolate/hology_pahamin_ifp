@@ -2,11 +2,13 @@
 Image Generation Client & Provider Handlers.
 
 Supports:
+- Pollinations.ai (Free Flux model, no API key required)
 - Gemini Image Generation (gemini-2.5-flash-image, gemini-3.1-flash-image)
-- HuggingFace Inference API (with automatic fallback to Gemini)
+- HuggingFace Inference API (with automatic fallback to Pollinations/Gemini)
 """
 import asyncio
 import io
+import urllib.parse
 from app.core.config import settings
 from app.core.logging import get_logger
 
@@ -16,27 +18,54 @@ logger = get_logger(__name__)
 async def generate_image_bytes(prompt: str) -> bytes | None:
     """
     Attempt to generate image bytes using the configured provider.
-    Returns raw PNG bytes on success, None on failure.
+    Returns raw PNG/JPEG bytes on success, None on failure.
 
     Provider is selected via IMAGE_GENERATION_PROVIDER:
-      "gemini"      (default) — Gemini Flash Image models
-      "huggingface"           — HuggingFace Inference API (with Gemini fallback)
+      "pollinations" (default) — Free Pollinations.ai FLUX (no API key needed)
+      "gemini"                 — Gemini Flash Image models
+      "huggingface"            — HuggingFace Inference API
     """
     provider = settings.IMAGE_GENERATION_PROVIDER.lower()
 
-    if provider == "huggingface":
+    if provider == "pollinations":
+        try:
+            return await _try_pollinations(prompt)
+        except Exception as e:
+            logger.warning("Pollinations image gen failed, falling back to Gemini", error=str(e))
+
+    elif provider == "huggingface":
         try:
             return await _try_huggingface(prompt)
         except Exception as e:
-            logger.warning("HuggingFace image gen failed, falling back to Gemini", error=str(e))
+            logger.warning("HuggingFace image gen failed, falling back to Pollinations", error=str(e))
 
-    # Gemini image generation
+    elif provider == "gemini":
+        try:
+            return await _try_gemini_image(prompt)
+        except Exception as e:
+            logger.warning("Gemini image gen failed, falling back to Pollinations", error=str(e))
+
+    # Automatic fallback: Pollinations.ai (free, reliable, FLUX model)
     try:
-        return await _try_gemini_image(prompt)
+        logger.info("Attempting image generation via Pollinations.ai")
+        return await _try_pollinations(prompt)
     except Exception as e:
-        logger.warning("Gemini image gen failed", error=str(e))
+        logger.warning("All image generation providers failed", error=str(e))
 
     return None
+
+
+async def _try_pollinations(prompt: str) -> bytes:
+    """Generate image bytes via Pollinations.ai (Free FLUX model, 100% free, no API key needed)."""
+    import httpx
+
+    encoded_prompt = urllib.parse.quote(prompt.strip())
+    url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?model=flux&width=1024&height=1024&nologo=true"
+
+    async with httpx.AsyncClient(timeout=45.0) as client:
+        resp = await client.get(url, follow_redirects=True)
+        resp.raise_for_status()
+        return _ensure_png(resp.content)
 
 
 async def _try_gemini_image(prompt: str) -> bytes:
