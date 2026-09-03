@@ -5,11 +5,57 @@ import {
   Sparkles,
   Wifi,
 } from "lucide-react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type Variants,
+} from "framer-motion";
 import { ReactLenis } from "lenis/react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { MobileNav } from "./MobileNav";
 import { HeroPresentationShowcase } from "./showcase/HeroPresentationShowcase";
+
+// One-time hero entry animation: fade + slight zoom, no bounce/rotation.
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+
+const heroTextContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+  },
+};
+
+const heroTextItem: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 1, ease: EASE_OUT },
+  },
+};
+
+const heroMockup: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 1, ease: EASE_OUT, delay: 0.8 },
+  },
+};
+
+// Same fade + slight-zoom treatment, applied to the sections below the fold on scroll-into-view.
+const sectionReveal: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: EASE_OUT },
+  },
+};
 
 const steps = [
   {
@@ -36,6 +82,22 @@ const steps = [
 ];
 
 export function LandingPage() {
+  const shouldReduceMotion = useReducedMotion();
+  const initialHidden = shouldReduceMotion ? false : "hidden";
+
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroScrollProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Subtle depth: each Bauhaus shape drifts a small, distinct amount as the hero scrolls away.
+  // Ranges stay within ~20-45px so it reads as depth, not floating objects.
+  const yellowCircleY = useTransform(heroScrollProgress, [0, 1], [0, shouldReduceMotion ? 0 : -20]);
+  const yellowRectY = useTransform(heroScrollProgress, [0, 1], [0, shouldReduceMotion ? 0 : 30]);
+  const navyOutlineCircleY = useTransform(heroScrollProgress, [0, 1], [0, shouldReduceMotion ? 0 : -45]);
+  const navyBlockY = useTransform(heroScrollProgress, [0, 1], [0, shouldReduceMotion ? 0 : 25]);
+
   return (
     <ReactLenis root options={{ anchors: true }}>
     <div className="min-h-screen overflow-x-clip bg-white text-[#454650]">
@@ -82,8 +144,16 @@ export function LandingPage() {
           <div className="hidden sm:block absolute -right-20 bottom-20 size-64 rounded-l-full bg-[#001456] opacity-90 [animation:float_9s_ease-in-out_infinite_1.5s]" />
 
 
-          <div className="relative z-[1] flex max-w-5xl flex-col items-center gap-4 py-6 pb-10  text-center">
-            <h1 className="text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl">
+          <motion.div
+            initial={initialHidden}
+            animate="visible"
+            variants={heroTextContainer}
+            className="relative z-[1] flex max-w-5xl flex-col items-center gap-4 py-6 pb-10  text-center"
+          >
+            <motion.h1
+              variants={heroTextItem}
+              className="text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl"
+            >
               Platform untuk{" "}
               <span className="relative inline-block">
                 <span
@@ -92,13 +162,13 @@ export function LandingPage() {
                 />
                 Kelas Interaktif
               </span>
-            </h1>
-            <p className="text-lg text-[#454650]">
+            </motion.h1>
+            <motion.p variants={heroTextItem} className="text-lg text-[#454650]">
               Buat media pembelajaran dengan AI dan gunakan langsung di TV interaktif kelas.
               <br />
               Bantu guru mengajar lebih interaktif, siswa lebih terlibat.
-            </p>
-            <div className="flex gap-4 pt-4">
+            </motion.p>
+            <motion.div variants={heroTextItem} className="flex gap-4 pt-4">
               <Link
                 to="/login"
                 className="rounded-full bg-[#001456] px-8 py-3.5 text-base font-semibold text-white shadow-[0_4px_6px_-1px_rgba(0,20,86,0.1)] transition-colors hover:bg-[#001456]/90"
@@ -111,11 +181,16 @@ export function LandingPage() {
               >
                 Lihat Fitur
               </a>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* IFP mockup — locked to 16:9, small on mobile, large on desktop */}
-          <div className="relative z-[1] w-full max-w-[320px] sm:max-w-[560px] lg:max-w-[1000px]">
+          <motion.div
+            initial={initialHidden}
+            animate="visible"
+            variants={heroMockup}
+            className="relative z-[1] w-full max-w-[320px] sm:max-w-[560px] lg:max-w-[1000px]"
+          >
             <div className="aspect-video w-full rounded-xl border-4 sm:rounded-2xl sm:border-6 lg:rounded-3xl lg:border-8 border-[#333] bg-[#1a1a1a] p-1.5 sm:p-3 lg:p-6 shadow-md [animation:shadow-pulse_5s_ease-in-out_infinite]">
               <div className="flex size-full flex-col overflow-hidden rounded-lg sm:rounded-xl bg-[#fbf9f5] p-3 sm:p-6 lg:p-10">
                 <div className="flex justify-end gap-2 sm:gap-4 text-[#767681]">
@@ -131,13 +206,17 @@ export function LandingPage() {
             <p className="absolute bottom-2 right-1/2 text-center text-[7px] font-bold tracking-[1.2px] text-[#666] uppercase sm:pt-2 sm:text-xs">
               PahamIn
             </p>
-          </div>
+          </motion.div>
 
         </section>
 
         {/* PROBLEM */}
-        <section
+        <motion.section
           id="tentang"
+          initial={initialHidden}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={sectionReveal}
           className="mx-auto flex max-w-7xl scroll-mt-28 flex-col items-center gap-12 px-10 py-6 pb-24 md:flex-row"
         >
           <div className="flex-1">
@@ -156,11 +235,15 @@ export function LandingPage() {
               className="absolute inset-0 size-full object-cover"
             />
           </div>
-        </section>
+        </motion.section>
 
         {/* SOLUTION */}
-        <section
+        <motion.section
           id="fitur"
+          initial={initialHidden}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={sectionReveal}
           className="mx-auto flex max-w-[1280px] scroll-mt-28 flex-col gap-16 px-10 py-16"
         >
           <div className="flex flex-col items-center gap-4 text-center">
@@ -184,7 +267,7 @@ export function LandingPage() {
               />
 
               <div className="relative z-[2] flex flex-col gap-2">
-                <h3 className="text-4xl font-bold text-white">PPT</h3>
+                <h3 className="text-4xl font-bold text-white">Presentasi Interaktif</h3>
                 <p className="max-w-[250px] text-base text-white/80">
                   Presentasi interaktif untuk digunakan langsung di TV kelas.
                 </p>
@@ -236,10 +319,16 @@ export function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* STEP BY STEP */}
-        <section className="relative mx-auto flex max-w-[1280px] flex-col gap-8 px-10 py-16">
+        <motion.section
+          initial={initialHidden}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={sectionReveal}
+          className="relative mx-auto flex max-w-[1280px] flex-col gap-8 px-10 py-16"
+        >
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-4xl font-bold tracking-tight text-[#001456]">
               Dari Ide Jadi Media, Semudah Ini
@@ -272,10 +361,16 @@ export function LandingPage() {
             <div className="absolute right-10 bottom-0 size-32 rounded-full border-4 border-[#c6c5d2]/30 [animation:float_8s_ease-in-out_infinite_0.5s]" />
             <div className="absolute right-16 bottom-0 size-20 rounded-full border-4 border-[#c6c5d2]/30 [animation:float_7s_ease-in-out_infinite_1s]" />
           </div>
-        </section>
+        </motion.section>
 
         {/* FINAL CTA */}
-        <section className="relative overflow-hidden bg-[#001456] py-24">
+        <motion.section
+          initial={initialHidden}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionReveal}
+          className="relative overflow-hidden bg-[#001456] py-24"
+        >
           <div className="hidden sm:block absolute  top-1/2 left-[-187px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90 [animation:float_8s_ease-in-out_infinite]" />
           <div className="hidden sm:block absolute  top-[calc(50%-27px)] right-[-140px] h-[318px] w-[328px] -translate-y-1/2 rounded-full border-[16px] border-[#fdd34d] opacity-90 [animation:float_9s_ease-in-out_infinite_1s]" />
           <div className="relative z-[1] mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-10 text-center">
@@ -295,12 +390,18 @@ export function LandingPage() {
               </button> */}
             </div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-[#c6c5d2]/20 bg-[#fbf9f5] py-8">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-10">
+      <footer className="bg-[#fbf9f5] py-8">
+        <motion.div
+          initial={initialHidden}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionReveal}
+          className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-10"
+        >
           <span className="text-2xl font-bold text-[#001456]">
             PahamIn AI
           </span>
@@ -313,7 +414,7 @@ export function LandingPage() {
               Tentang Kami
             </span>
           </div>
-        </div>
+        </motion.div>
       </footer>
     </div>
     </ReactLenis>
