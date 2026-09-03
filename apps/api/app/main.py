@@ -50,6 +50,22 @@ tags_metadata = [
         ),
     },
     {
+        "name": "Audio Narration",
+        "description": "Voice-over edukatif interaktif bahasa Indonesia ramah anak menggunakan Edge-TTS untuk slide presentasi dan materi.",
+    },
+    {
+        "name": "Exports",
+        "description": "Download lembar kerja LKPD siap cetak format A4 PDF untuk siswa di kelas.",
+    },
+    {
+        "name": "Differentiated Learning (TaRL)",
+        "description": "Generator pembelajaran terdiferensiasi 3 level (Perintis, Cakap, Mahir) sesuai Kurikulum Merdeka.",
+    },
+    {
+        "name": "Public Viewer",
+        "description": "Penayangan presentasi publik tanpa login khusus untuk perangkat Interactive Flat Panel (IFP) sekolah.",
+    },
+    {
         "name": "System",
         "description": "Health check dan informasi sistem.",
     },
@@ -60,13 +76,15 @@ app = FastAPI(
     description="""
 ## Platform AI Generator Media Pembelajaran untuk Guru SD Indonesia
 
-PahamIn membantu guru Sekolah Dasar menghasilkan tiga jenis media pembelajaran dari satu konteks pembelajaran menggunakan model kecerdasan buatan:
+PahamIn membantu guru Sekolah Dasar menghasilkan media pembelajaran terintegrasi dari satu konteks pembelajaran menggunakan model kecerdasan buatan:
 
-| Output | Deskripsi |
+| Output / Fitur | Deskripsi |
 |---|---|
 | Presentasi Interaktif TV | Slide interaktif yang dioptimalkan untuk Interactive Flat Panel (IFP) touchscreen |
-| LKPD Cetak | Lembar Kerja Peserta Didik dengan soal dan rubrik penilaian |
+| LKPD Cetak & PDF | Lembar Kerja Peserta Didik dengan soal dan download file A4 PDF siap cetak |
 | E-Book | Buku digital naratif dengan materi dan panduan diskusi rumah |
+| Audio Narasi (TTS) | Voice-over interaktif ramah anak untuk slide dan materi pembelajaran |
+| Diferensiasi TaRL | Rencana pembelajaran adaptif 3 level (Perintis, Cakap, Mahir) |
 
 ---
 
@@ -79,8 +97,11 @@ PahamIn membantu guru Sekolah Dasar menghasilkan tiga jenis media pembelajaran d
 5. **Generate**: Trigger proses AI (`POST /api/v1/projects/{id}/generate`).
 6. **Polling Status**: Pantau status generate (`GET /api/v1/projects/{id}/status`).
 7. **Ambil Output**: Ambil konten via endpoint `/presentation`, `/lkpd`, atau `/ebook`.
-8. **Runtime TV**: Gunakan endpoint `/runtime` untuk penayangan di layar sentuh IFP.
-9. **Feedback**: Kirim evaluasi pembelajaran via `/feedback`.
+8. **Export PDF**: Unduh lembar LKPD siap cetak via `/api/v1/exports/projects/{id}/lkpd-pdf`.
+9. **Audio Narasi**: Dengarkan suara narasi slide via `/api/v1/narrations/...`.
+10. **Diferensiasi TaRL**: Generate paket soal 3 level via `/api/v1/projects/{id}/differentiate`.
+11. **Runtime TV**: Gunakan endpoint `/runtime` untuk penayangan di layar sentuh IFP.
+12. **Feedback**: Kirim evaluasi pembelajaran via `/feedback`.
 
 ---
 
