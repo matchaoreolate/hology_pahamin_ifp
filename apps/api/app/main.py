@@ -116,13 +116,21 @@ Authorization: Bearer <access_token>
 )
 
 # --- CORS ---
+cors_origins = settings.get_cors_origins()
+cors_origin_regex = None
+if "*" in cors_origins:
+    cors_origins = []
+    cors_origin_regex = r".*"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.get_cors_origins(),
+    allow_origins=cors_origins,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # --- Routers ---
 app.include_router(api_router, prefix=settings.API_V1_STR)
