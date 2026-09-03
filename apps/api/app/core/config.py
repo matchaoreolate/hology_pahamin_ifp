@@ -71,8 +71,8 @@ class Settings(BaseSettings):
     GEMINI_TEMPERATURE: float = 0.7
 
     # --- Image Generation ---
-    # Options: "pollinations" (default, free FLUX, no API key needed) | "gemini" | "huggingface"
-    IMAGE_GENERATION_PROVIDER: str = "pollinations"
+    # Options: "gemini" (default, Google Gemini Flash Image) | "pollinations" | "huggingface"
+    IMAGE_GENERATION_PROVIDER: str = "gemini"
     # HuggingFace — only required when IMAGE_GENERATION_PROVIDER="huggingface"
     HF_TOKEN: str = ""
     HF_IMAGE_MODEL: str = "black-forest-labs/FLUX.1-schnell"
