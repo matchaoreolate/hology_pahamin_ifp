@@ -11,6 +11,7 @@ import type { ApiError } from "@/types/api";
 
 import { PresentationNavigation } from "./components/PresentationNavigation";
 import { SlideViewport } from "./components/SlideViewport";
+import { mockPresentation } from "./mock";
 import type { PresentationArtifact } from "./types";
 
 export function PresentationEditorPage() {
@@ -18,13 +19,13 @@ export function PresentationEditorPage() {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [artifact, setArtifact] = useState<PresentationArtifact | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
+  const [usingMockFallback, setUsingMockFallback] = useState(false);
 
   useEffect(() => {
     if (!projectId) return;
     let cancelled = false;
     setArtifact(null);
-    setError(null);
+    setUsingMockFallback(false);
     setCurrent(0);
 
     getPresentation(projectId)
@@ -32,24 +33,19 @@ export function PresentationEditorPage() {
         if (!cancelled) setArtifact(data);
       })
       .catch((err: ApiError) => {
-        if (!cancelled) setError(err);
+        if (cancelled) return;
+        // projectId may be a stub route (e.g. CreateProjectPage's placeholder
+        // "new-project" until it's wired to real project creation) rather than a
+        // real backend 404 — degrade to the mock so the editor stays usable.
+        console.warn("Gagal memuat presentasi, menampilkan data contoh:", err.detail);
+        setUsingMockFallback(true);
+        setArtifact(mockPresentation);
       });
 
     return () => {
       cancelled = true;
     };
   }, [projectId]);
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-secondary/40 pt-16">
-        <p className="text-sm text-destructive">Gagal memuat presentasi: {error.detail}</p>
-        <Button variant="secondary" size="sm" onClick={() => navigate("/dashboard")}>
-          Kembali ke Dashboard
-        </Button>
-      </div>
-    );
-  }
 
   if (!artifact) {
     return (
@@ -63,6 +59,11 @@ export function PresentationEditorPage() {
 
   return (
     <div className="min-h-screen bg-secondary/40 pt-16">
+      {usingMockFallback && (
+        <p className="fixed top-16 right-0 left-0 z-20 bg-amber-500/90 py-1 text-center font-mono text-[11px] text-white">
+          Mode contoh — project {projectId} belum tersedia di backend, menampilkan data contoh
+        </p>
+      )}
       <EditorHeader
         backTo="/dashboard"
         title={artifact.meta.title}
