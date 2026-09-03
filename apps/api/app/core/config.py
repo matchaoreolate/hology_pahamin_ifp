@@ -45,6 +45,18 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://pahamin:pahamin_secret@localhost:5432/pahamin_db"
     DB_ECHO: bool = False  # Set True to log all SQL queries in dev
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: object) -> str:
+        """Ensure standard postgresql:// or postgres:// is converted to postgresql+asyncpg:// for async SQLAlchemy."""
+        url = str(v)
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+asyncpg://", 1)
+        if url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+            return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
+
+
     # --- Redis ---
     REDIS_URL: str = "redis://localhost:6379/0"
 
