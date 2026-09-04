@@ -1,15 +1,22 @@
-import { Download, Play, Plus, Sparkles } from "lucide-react";
+import { ChevronDown, Download, Play, Plus, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
 import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getPresentation } from "@/lib/api/outputs";
 import { pollProjectGeneration } from "@/lib/api/polling";
 import { cn } from "@/lib/utils";
 import type { ApiError } from "@/types/api";
 
+import { ExportMediaDialog } from "./components/ExportMediaDialog";
 import { PresentationNavigation } from "./components/PresentationNavigation";
 import { SlideViewport } from "./components/SlideViewport";
 import type { PresentationArtifact } from "./types";
@@ -21,6 +28,7 @@ export function PresentationEditorPage() {
   const [artifact, setArtifact] = useState<PresentationArtifact | null>(null);
   const [waitingForGeneration, setWaitingForGeneration] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
 
   useEffect(() => {
     if (!projectId) return;
@@ -119,9 +127,18 @@ export function PresentationEditorPage() {
         centerContent={projectId ? <OutputSwitcher projectId={projectId} /> : undefined}
         actions={
           <>
-            <Button variant="secondary" size="sm">
-              Simpan
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex h-8 items-center gap-1.5 rounded-md border border-input bg-secondary px-3 font-mono text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/70">
+                Simpan
+                <ChevronDown size={13} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Simpan</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                  Simpan &amp; Tutup
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="primary"
               size="sm"
@@ -130,12 +147,19 @@ export function PresentationEditorPage() {
               <Play size={12} />
               Mulai Presentasi
             </Button>
-            <button className="text-muted-foreground transition-colors hover:text-foreground">
+            <button
+              onClick={() => setExportOpen(true)}
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Unduh media"
+              title="Unduh media"
+            >
               <Download size={15} />
             </button>
           </>
         }
       />
+
+      <ExportMediaDialog artifact={artifact} open={exportOpen} onOpenChange={setExportOpen} />
 
       <div className="flex">
         <aside className="fixed top-16 bottom-0 left-0 flex w-64 flex-col border-r border-border bg-card">

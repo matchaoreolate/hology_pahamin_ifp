@@ -22,7 +22,6 @@ export function LoginPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
@@ -102,21 +101,13 @@ export function LoginPage() {
                   <Label>Password</Label>
                   <div className="relative">
                     <Input
-                      type={showLoginPassword ? "text" : "password"}
+                      type="password"
                       placeholder="••••••••"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       required
                       className="pr-10"
                     />
-                    {/* <button
-                      type="button"
-                      onClick={() => setShowLoginPassword((prev) => !prev)}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
-                      aria-label={showLoginPassword ? "Sembunyikan password" : "Tampilkan password"}
-                    >
-                       {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />} 
-                    </button> */}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
