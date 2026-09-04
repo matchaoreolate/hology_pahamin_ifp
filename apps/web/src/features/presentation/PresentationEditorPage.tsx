@@ -6,12 +6,12 @@ import { EditorHeader } from "@/components/layout/EditorHeader";
 import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
 import { getPresentation } from "@/lib/api/outputs";
+import { pollProjectGeneration } from "@/lib/api/polling";
 import { cn } from "@/lib/utils";
 import type { ApiError } from "@/types/api";
 
 import { PresentationNavigation } from "./components/PresentationNavigation";
 import { SlideViewport } from "./components/SlideViewport";
-import { mockPresentation } from "./mock";
 import type { PresentationArtifact } from "./types";
 
 export function PresentationEditorPage() {
@@ -19,33 +19,86 @@ export function PresentationEditorPage() {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [artifact, setArtifact] = useState<PresentationArtifact | null>(null);
-  const [usingMockFallback, setUsingMockFallback] = useState(false);
+  const [waitingForGeneration, setWaitingForGeneration] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
     if (!projectId) return;
     let cancelled = false;
+    let cancelPoll: (() => void) | null = null;
     setArtifact(null);
-    setUsingMockFallback(false);
+    setWaitingForGeneration(false);
+    setError(null);
     setCurrent(0);
 
-    getPresentation(projectId)
-      .then((data) => {
-        if (!cancelled) setArtifact(data);
-      })
-      .catch((err: ApiError) => {
-        if (cancelled) return;
-        // projectId may be a stub route (e.g. CreateProjectPage's placeholder
-        // "new-project" until it's wired to real project creation) rather than a
-        // real backend 404 — degrade to the mock so the editor stays usable.
-        console.warn("Gagal memuat presentasi, menampilkan data contoh:", err.detail);
-        setUsingMockFallback(true);
-        setArtifact(mockPresentation);
-      });
+    function loadPresentation() {
+      getPresentation(projectId!)
+        .then((data) => {
+          if (!cancelled) setArtifact(data);
+        })
+        .catch((err: ApiError) => {
+          if (cancelled) return;
+
+          if (err.status === 425) {
+            // Output exists but generation is still running — wait for it instead
+            // of guessing; poll project status and re-fetch once it resolves.
+            setWaitingForGeneration(true);
+            const { promise, cancel } = pollProjectGeneration(projectId!);
+            cancelPoll = cancel;
+            promise
+              .then((status) => {
+                if (cancelled) return;
+                if (status.project_status === "done") {
+                  loadPresentation();
+                } else {
+                  setWaitingForGeneration(false);
+                  setError({
+                    status: null,
+                    detail: status.error_message ?? "Generate AI gagal untuk project ini",
+                    raw: status,
+                  });
+                }
+              })
+              .catch((pollErr: ApiError) => {
+                if (cancelled) return;
+                setWaitingForGeneration(false);
+                setError(pollErr);
+              });
+            return;
+          }
+
+          setError(err);
+        });
+    }
+
+    loadPresentation();
 
     return () => {
       cancelled = true;
+      cancelPoll?.();
     };
   }, [projectId]);
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-secondary/40 pt-16">
+        <p className="text-sm text-destructive">Gagal memuat presentasi: {error.detail}</p>
+        <Button variant="secondary" size="sm" onClick={() => navigate("/dashboard")}>
+          Kembali ke Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  if (waitingForGeneration) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-secondary/40 pt-16">
+        <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">AI sedang membuat presentasi...</p>
+        <p className="text-xs text-muted-foreground">Halaman ini akan otomatis diperbarui setelah selesai.</p>
+      </div>
+    );
+  }
 
   if (!artifact) {
     return (
@@ -59,11 +112,6 @@ export function PresentationEditorPage() {
 
   return (
     <div className="min-h-screen bg-secondary/40 pt-16">
-      {usingMockFallback && (
-        <p className="fixed top-16 right-0 left-0 z-20 bg-amber-500/90 py-1 text-center font-mono text-[11px] text-white">
-          Mode contoh — project {projectId} belum tersedia di backend, menampilkan data contoh
-        </p>
-      )}
       <EditorHeader
         backTo="/dashboard"
         title={artifact.meta.title}
