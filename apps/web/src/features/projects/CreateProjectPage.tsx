@@ -9,7 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createLearningContext } from "@/lib/api/contexts";
+import { createProject, generateProject } from "@/lib/api/projects";
 import { cn } from "@/lib/utils";
+import type { ApiError, Fase, Kelas, MataPelajaran } from "@/types/api";
 import type { OutputType } from "@/types/domain";
 
 const outputOptions: { value: OutputType; title: string; description: string; icon: typeof MonitorPlay }[] = [
@@ -33,12 +36,42 @@ const outputOptions: { value: OutputType; title: string; description: string; ic
   },
 ];
 
-const faseOptions = ["Fase A (Kelas 1-2)", "Fase B (Kelas 3-4)", "Fase C (Kelas 5-6)"];
+// Must match the backend's MataPelajaranEnum exactly (app/schemas/learning_context.py).
+const mataPelajaranOptions: MataPelajaran[] = [
+  "IPAS",
+  "Matematika",
+  "Bahasa Indonesia",
+  "Pendidikan Pancasila",
+  "PJOK",
+  "Seni",
+  "Bahasa Inggris",
+  "Agama",
+];
+
+// Must match the backend's Fase/Kelas enums + the fase<->kelas consistency validator.
+const faseKelasOptions: { label: string; fase: Fase; kelas: Kelas }[] = [
+  { label: "Fase A (Kelas 1&2)", fase: "A", kelas: "1&2" },
+  { label: "Fase B (Kelas 3&4)", fase: "B", kelas: "3&4" },
+  { label: "Fase C (Kelas 5&6)", fase: "C", kelas: "5&6" },
+];
+
+// The backend still requires alokasi_waktu_jp (1-2), not minutes — the duration input
+// below is cosmetic until that contract changes, and is not sent to the API.
+const HARDCODED_ALOKASI_WAKTU_JP = 2;
 
 export function CreateProjectPage() {
   const navigate = useNavigate();
   const [selectedOutputs, setSelectedOutputs] = useState<OutputType[]>(["presentation"]);
   const [durasiMenit, setDurasiMenit] = useState("");
+
+  const [mataPelajaran, setMataPelajaran] = useState<MataPelajaran | "">("");
+  const [faseKelasLabel, setFaseKelasLabel] = useState("");
+  const [topik, setTopik] = useState("");
+  const [tujuanPembelajaran, setTujuanPembelajaran] = useState("");
+  const [konteksLokal, setKonteksLokal] = useState("");
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const durasiValue = Number(durasiMenit);
   const isDurasiInvalid =
@@ -51,10 +84,45 @@ export function CreateProjectPage() {
     );
   }
 
-  function handleGenerate() {
-    const first = selectedOutputs[0] ?? "presentation";
-    const route = first === "presentation" ? "presentation" : first;
-    navigate(`/projects/new-project/${route}`);
+  async function handleGenerate() {
+    const faseKelas = faseKelasOptions.find((o) => o.label === faseKelasLabel);
+    if (!mataPelajaran || !faseKelas || topik.trim().length < 3 || tujuanPembelajaran.trim().length < 10) {
+      setSubmitError(
+        "Lengkapi Mata Pelajaran, Fase/Kelas, Materi/Topik (min. 3 karakter), dan Tujuan Pembelajaran (min. 10 karakter).",
+      );
+      return;
+    }
+
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const context = await createLearningContext({
+        fase: faseKelas.fase,
+        kelas: faseKelas.kelas,
+        mata_pelajaran: mataPelajaran,
+        topik: topik.trim(),
+        tujuan_pembelajaran: tujuanPembelajaran.trim(),
+        alokasi_waktu_jp: HARDCODED_ALOKASI_WAKTU_JP,
+        apersepsi: konteksLokal.trim() || undefined,
+      });
+
+      const project = await createProject({
+        learning_context_id: context.id,
+        title: topik.trim(),
+        selected_outputs: selectedOutputs,
+      });
+
+      // Best-effort — generation is async and the editor pages fall back to mock
+      // content until real output is ready, so a failure here shouldn't block navigation.
+      await generateProject(project.id).catch(() => {});
+
+      const route = selectedOutputs[0] ?? "presentation";
+      navigate(`/projects/${project.id}/${route}`);
+    } catch (err) {
+      setSubmitError((err as ApiError).detail);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -79,7 +147,7 @@ export function CreateProjectPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleGenerate();
+            void handleGenerate();
           }}
           className="flex flex-col gap-10 rounded-xl border border-border bg-card p-8 shadow-xs"
         >
@@ -90,18 +158,29 @@ export function CreateProjectPage() {
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
                 <Label>Mata Pelajaran</Label>
-                <Input placeholder="Cth: Ilmu Pengetahuan Alam" />
+                <Select value={mataPelajaran} onValueChange={(v) => setMataPelajaran(v as MataPelajaran)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Mata Pelajaran" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mataPelajaranOptions.map((mp) => (
+                      <SelectItem key={mp} value={mp}>
+                        {mp}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Fase/Kelas</Label>
-                <Select>
+                <Select value={faseKelasLabel} onValueChange={(v) => setFaseKelasLabel(v ?? "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Fase/Kelas" />
                   </SelectTrigger>
                   <SelectContent>
-                    {faseOptions.map((fase) => (
-                      <SelectItem key={fase} value={fase}>
-                        {fase}
+                    {faseKelasOptions.map(({ label }) => (
+                      <SelectItem key={label} value={label}>
+                        {label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -136,11 +215,20 @@ export function CreateProjectPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Materi/Topik Utama</Label>
-                <Input placeholder="Cth: Sistem Tata Surya" />
+                <Input
+                  placeholder="Cth: Sistem Tata Surya"
+                  value={topik}
+                  onChange={(e) => setTopik(e.target.value)}
+                />
               </div>
               <div className="col-span-2 flex flex-col gap-2">
                 <Label>Tujuan Pembelajaran</Label>
-                <Textarea rows={3} placeholder="Siswa dapat memahami..." />
+                <Textarea
+                  rows={3}
+                  placeholder="Siswa dapat memahami..."
+                  value={tujuanPembelajaran}
+                  onChange={(e) => setTujuanPembelajaran(e.target.value)}
+                />
               </div>
             </div>
           </section>
@@ -155,13 +243,16 @@ export function CreateProjectPage() {
                 <Textarea
                   rows={3}
                   placeholder="Jelaskan kondisi unik kelas atau kearifan lokal yang ingin dimasukkan..."
+                  value={konteksLokal}
+                  onChange={(e) => setKonteksLokal(e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Instruksi Tambahan untuk AI</Label>
                 <Textarea
                   rows={3}
-                  placeholder="Cth: Gunakan bahasa yang santai, perbanyak analogi..."
+                  placeholder="Cth: Gunakan bahasa yang santai, perbanyak analogi... (belum terhubung ke API)"
+                  disabled
                 />
               </div>
             </div>
@@ -213,10 +304,16 @@ export function CreateProjectPage() {
           </section>
         </form>
 
+        {submitError && (
+          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {submitError}
+          </p>
+        )}
+
         <div className="flex justify-end pb-12">
-          <Button type="button" variant="primary" onClick={handleGenerate}>
+          <Button type="button" variant="primary" onClick={() => void handleGenerate()} disabled={submitting}>
             <Sparkles size={16} />
-            Generate dengan AI
+            {submitting ? "Membuat materi..." : "Generate dengan AI"}
           </Button>
         </div>
       </main>
