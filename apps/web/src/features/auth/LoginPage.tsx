@@ -109,14 +109,14 @@ export function LoginPage() {
                       required
                       className="pr-10"
                     />
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => setShowLoginPassword((prev) => !prev)}
                       className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
                       aria-label={showLoginPassword ? "Sembunyikan password" : "Tampilkan password"}
                     >
-                      {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                       {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />} 
+                    </button> */}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
