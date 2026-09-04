@@ -1,4 +1,4 @@
-import { BookOpen, MonitorPlay, Plus, ScrollText } from "lucide-react";
+import { BookOpen, MonitorPlay, MoreVertical, Plus, ScrollText, Trash2 } from "lucide-react";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
 import { useEffect, useRef, useState } from "react";
@@ -9,9 +9,10 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { getLearningContext } from "@/lib/api/contexts";
-import { getProjects } from "@/lib/api/projects";
+import { deleteProject, getProjects } from "@/lib/api/projects";
 import type { ApiError, LearningContextApiResponse, MediaProjectApiResponse } from "@/types/api";
 import type { OutputType } from "@/types/domain";
 
@@ -50,9 +51,25 @@ export function DashboardPage() {
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const projectListRef = useRef<HTMLDivElement>(null);
   const createButtonRef = useRef<HTMLAnchorElement>(null);
+
+  async function handleDelete(projectId: string, title: string) {
+    if (!window.confirm(`Hapus materi "${title}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+
+    setDeletingId(projectId);
+    setError(null);
+    try {
+      await deleteProject(projectId);
+      setRows((prev) => prev.filter((row) => row.project.id !== projectId));
+    } catch (err) {
+      setError(err as ApiError);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -191,9 +208,29 @@ export function DashboardPage() {
             {visibleRows.map(({ project, context }) => (
               <Card key={project.id} className="w-[309px]">
                 <CardHeader className="gap-2">
-                  <div className="flex gap-2">
-                    <Badge>{context?.mata_pelajaran ?? "-"}</Badge>
-                    <Badge>{context ? `Kelas ${context.kelas}` : "-"}</Badge>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex gap-2">
+                      <Badge>{context?.mata_pelajaran ?? "-"}</Badge>
+                      <Badge>{context ? `Kelas ${context.kelas}` : "-"}</Badge>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        disabled={deletingId === project.id}
+                        className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+                        aria-label="Opsi materi"
+                      >
+                        <MoreVertical size={16} />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => void handleDelete(project.id, project.title)}
+                        >
+                          <Trash2 size={14} />
+                          Hapus
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <h3 className="text-xl font-medium text-foreground">{project.title}</h3>
                 </CardHeader>
