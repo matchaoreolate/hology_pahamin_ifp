@@ -192,9 +192,11 @@ export function CreateProjectPage() {
 
         {phase !== "form" ? (
           <GenerationLoadingState
-            phase={phase === "starting" ? "starting" : "generating"}
             errorMessage={phase === "error" ? phaseError : null}
             onRetry={() => void handleGenerate()}
+            topik={topik.trim()}
+            mataPelajaran={mataPelajaran}
+            faseKelasLabel={faseKelasLabel}
           />
         ) : (
         <form

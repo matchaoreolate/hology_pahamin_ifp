@@ -6,6 +6,13 @@ import { Link } from "react-router-dom";
 
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Sidebar } from "@/components/layout/Sidebar";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -52,13 +59,12 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
 
   const projectListRef = useRef<HTMLDivElement>(null);
   const createButtonRef = useRef<HTMLAnchorElement>(null);
 
-  async function handleDelete(projectId: string, title: string) {
-    if (!window.confirm(`Hapus materi "${title}"? Tindakan ini tidak bisa dibatalkan.`)) return;
-
+  async function handleDelete(projectId: string) {
     setDeletingId(projectId);
     setError(null);
     try {
@@ -224,7 +230,7 @@ export function DashboardPage() {
                       <DropdownMenuContent>
                         <DropdownMenuItem
                           variant="destructive"
-                          onClick={() => void handleDelete(project.id, project.title)}
+                          onClick={() => setPendingDelete({ id: project.id, title: project.title })}
                         >
                           <Trash2 size={14} />
                           Hapus
@@ -297,6 +303,39 @@ export function DashboardPage() {
           </div>
         </div>
       </main>
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogTitle>Hapus materi?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Materi &quot;{pendingDelete?.title}&quot; akan dihapus permanen dan tidak bisa
+            dikembalikan.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <Button variant="secondary" size="sm" onClick={() => setPendingDelete(null)}>
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={deletingId !== null}
+              onClick={() => {
+                if (!pendingDelete) return;
+                const { id } = pendingDelete;
+                setPendingDelete(null);
+                void handleDelete(id);
+              }}
+            >
+              {deletingId ? "Menghapus..." : "Hapus"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -22,13 +22,31 @@ const NEAR_DONE_THRESHOLD_S = 60;
 const cycleIcons = [BookOpen, Lightbulb, Sparkles, PencilRuler];
 
 interface GenerationLoadingStateProps {
-  /** "starting": creating project/context. "generating": generation kicked off, polling status. */
-  phase: "starting" | "generating";
   errorMessage: string | null;
   onRetry: () => void;
+  /** Values from the form, used to personalize the loading copy. */
+  topik: string;
+  mataPelajaran: string;
+  faseKelasLabel: string;
 }
 
-export function GenerationLoadingState({ phase, errorMessage, onRetry }: GenerationLoadingStateProps) {
+function buildLoadingDescription(topik: string, mataPelajaran: string, faseKelasLabel: string) {
+  const parts: string[] = [];
+  if (topik) parts.push(`materi "${topik}"`);
+  else parts.push("materi Anda");
+  if (mataPelajaran) parts.push(`untuk ${mataPelajaran}`);
+  if (faseKelasLabel) parts.push(`pada ${faseKelasLabel}`);
+
+  return `PahamIn sedang menyusun ${parts.join(" ")}.`;
+}
+
+export function GenerationLoadingState({
+  errorMessage,
+  onRetry,
+  topik,
+  mataPelajaran,
+  faseKelasLabel,
+}: GenerationLoadingStateProps) {
   const [factIndex, setFactIndex] = useState(0);
   const [iconIndex, setIconIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -96,8 +114,7 @@ export function GenerationLoadingState({ phase, errorMessage, onRetry }: Generat
           Sedang menyiapkan media pembelajaran...
         </h2>
         <p className="max-w-md text-sm text-muted-foreground">
-          PahamIn sedang menyusun materi, aktivitas, dan tampilan yang sesuai dengan pembelajaran
-          Anda.
+          {buildLoadingDescription(topik, mataPelajaran, faseKelasLabel)}
         </p>
       </div>
 
@@ -110,7 +127,6 @@ export function GenerationLoadingState({ phase, errorMessage, onRetry }: Generat
         <p className="font-mono text-xs text-muted-foreground">
           Perkiraan waktu: sekitar 30–60 detik
         </p>
-        <p className="text-xs text-muted-foreground">Mohon tunggu, media Anda sedang dibuat.</p>
       </div>
 
       <div className="min-h-16 w-full max-w-lg rounded-lg border border-border bg-secondary/40 px-6 py-4">
@@ -144,10 +160,6 @@ export function GenerationLoadingState({ phase, errorMessage, onRetry }: Generat
           )}
         </AnimatePresence>
       </div>
-
-      {/* <p className="font-mono text-[10px] tracking-wide text-muted-foreground/70 uppercase">
-        {phase === "starting" ? "Menyiapkan proyek..." : "Membuat materi dengan AI..."}
-      </p> */}
     </div>
   );
 }
