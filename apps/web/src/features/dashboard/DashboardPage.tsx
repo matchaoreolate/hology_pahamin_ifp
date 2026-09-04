@@ -1,7 +1,7 @@
 import { BookOpen, MonitorPlay, MoreVertical, Plus, ScrollText, Trash2 } from "lucide-react";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -62,9 +62,26 @@ export function DashboardPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
   const [user, setUser] = useState<UserResponse | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileBlockOpen, setMobileBlockOpen] = useState(false);
 
   const projectListRef = useRef<HTMLDivElement>(null);
   const createButtonRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Editing/creating materials needs a bigger screen — block navigation on mobile.
+  function blockOnMobile(e: MouseEvent) {
+    if (!isMobile) return;
+    e.preventDefault();
+    setMobileBlockOpen(true);
+  }
 
   useEffect(() => {
     if (!isAuthenticated()) return;
@@ -182,11 +199,11 @@ export function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pt-16 pl-64">
+    <div className="min-h-screen bg-background pt-16 md:pl-64">
       <AppHeader />
       <Sidebar />
 
-      <main className="flex flex-col gap-6 px-6 pt-6 pb-24">
+      <main className="flex flex-col gap-6 px-4 pt-6 pb-24 sm:px-6">
         <div className="flex flex-col gap-2">
           {user && (
             <p className="font-mono text-sm text-muted-foreground">
@@ -197,14 +214,14 @@ export function DashboardPage() {
           <p className="text-sm text-muted-foreground">Kelola semua materi pembelajaran Anda</p>
         </div>
 
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex overflow-hidden rounded-md border border-border">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex overflow-x-auto rounded-md border border-border">
             {filters.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "border-r border-border px-4 py-1.5 font-mono text-xs transition-colors last:border-r-0",
+                  "shrink-0 border-r border-border px-4 py-1.5 font-mono text-xs transition-colors last:border-r-0",
                   filter === f
                     ? "bg-primary text-primary-foreground"
                     : "bg-card text-foreground hover:bg-secondary",
@@ -214,7 +231,7 @@ export function DashboardPage() {
               </button>
             ))}
           </div>
-          <Link to="/projects/new" ref={createButtonRef}>
+          <Link to="/projects/new" ref={createButtonRef} onClick={blockOnMobile}>
             <Button variant="primary" size="sm">
               <Plus size={13} />
               Materi Baru
@@ -234,7 +251,7 @@ export function DashboardPage() {
         ) : (
           <div className="flex flex-wrap gap-6 pb-6">
             {visibleRows.map(({ project, context }) => (
-              <Card key={project.id} className="w-[309px]">
+              <Card key={project.id} className="w-full sm:w-[309px]">
                 <CardHeader className="gap-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex gap-2">
@@ -286,7 +303,10 @@ export function DashboardPage() {
                   <span className="font-mono text-[11px] text-muted-foreground">
                     {formatUpdatedLabel(project.updated_at)}
                   </span>
-                  <Link to={`/projects/${project.id}/${outputRouteFor(project.selected_outputs[0])}`}>
+                  <Link
+                    to={`/projects/${project.id}/${outputRouteFor(project.selected_outputs[0])}`}
+                    onClick={blockOnMobile}
+                  >
                     <Button variant="secondary" size="sm">
                       Buka →
                     </Button>
@@ -297,7 +317,8 @@ export function DashboardPage() {
 
             <Link
               to="/projects/new"
-              className="flex min-h-[250px] w-[309px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-secondary/40 px-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
+              onClick={blockOnMobile}
+              className="flex min-h-[250px] w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-secondary/40 px-6 text-center transition-colors hover:border-primary hover:bg-secondary/70 sm:w-[309px]"
             >
               <Plus size={32} className="text-muted-foreground" />
               <h3 className="text-xl font-medium text-foreground">Buat Materi Baru</h3>
@@ -311,9 +332,9 @@ export function DashboardPage() {
 
         <div className="border-t border-border pt-6">
           <h2 className="mb-4 text-xl font-medium text-foreground">Statistik Materi</h2>
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:flex">
             {stats.map((stat) => (
-              <div key={stat.label} className="flex-1 rounded-lg border border-border bg-card p-4">
+              <div key={stat.label} className="rounded-lg border border-border bg-card p-4 sm:flex-1">
                 <p className="mb-1 font-mono text-xs text-muted-foreground uppercase">
                   {stat.label}
                 </p>
@@ -354,6 +375,21 @@ export function DashboardPage() {
               }}
             >
               {deletingId ? "Menghapus..." : "Hapus"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={mobileBlockOpen} onOpenChange={setMobileBlockOpen}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Belum tersedia di perangkat mobile</AlertDialogTitle>
+          <AlertDialogDescription>
+            Mengedit materi memerlukan layar yang lebih besar. Silakan buka PahamIn di laptop atau
+            komputer untuk melanjutkan.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <Button variant="primary" size="sm" onClick={() => setMobileBlockOpen(false)}>
+              Mengerti
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

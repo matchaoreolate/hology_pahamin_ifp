@@ -21,15 +21,15 @@ type Status = "idle" | "exporting" | "success" | "error";
 const OPTIONS: {
   id: ExportOption;
   title: string;
-  description: string;
-  supportingCopy: string;
+  description?: string;
+  supportingCopy?: string;
 }[] = [
   {
     id: "offline",
     title: "Media Interaktif Offline",
-    description: "Buka langsung di browser, bahkan tanpa koneksi internet.",
-    supportingCopy:
-      "Materi dan aktivitas interaktif akan disimpan dalam satu file dan dapat dibuka tanpa koneksi internet.",
+    description: "Materi dan aktivitas interaktif akan disimpan dalam satu file dan dapat dibuka di browser tanpa koneksi internet.",
+    // supportingCopy:
+    //  "Materi dan aktivitas interaktif akan disimpan dalam satu file dan dapat dibuka di browser tanpa koneksi internet.",
   },
   {
     id: "pdf",

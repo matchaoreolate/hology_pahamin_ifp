@@ -10,7 +10,7 @@ const navItems = [
 
 export function Sidebar() {
   return (
-    <aside className="fixed left-0 top-16 bottom-0 flex w-64 flex-col border-r border-border bg-secondary/40 px-3 py-4">
+    <aside className="fixed left-0 top-16 bottom-0 hidden w-64 flex-col border-r border-border bg-secondary/40 px-3 py-4 md:flex">
       <nav className="flex flex-1 flex-col gap-1 pt-2">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
