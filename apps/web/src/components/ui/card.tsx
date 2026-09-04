@@ -32,14 +32,14 @@ export function CardDescription({ className, ...props }: HTMLAttributes<HTMLPara
 }
 
 export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col gap-3 p-5", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-2 p-5", className)} {...props} />;
 }
 
 export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between border-t border-border bg-secondary/50 p-5",
+        "flex items-center justify-between border-t border-border bg-secondary/50 p-5 py-3",
         className,
       )}
       {...props}

@@ -78,7 +78,7 @@ export function AppHeader({ variant = "app" }: AppHeaderProps) {
             onClick={handleLogout}
             className="font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
-            Logout
+            Keluar Akun
           </button>
         </div>
       )}

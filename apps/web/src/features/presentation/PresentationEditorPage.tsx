@@ -1,16 +1,10 @@
-import { ChevronDown, Download, Play, Plus, Sparkles } from "lucide-react";
+import { Download, Play, Plus, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
 import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { getPresentation } from "@/lib/api/outputs";
 import { pollProjectGeneration } from "@/lib/api/polling";
 import { cn } from "@/lib/utils";
@@ -127,18 +121,7 @@ export function PresentationEditorPage() {
         centerContent={projectId ? <OutputSwitcher projectId={projectId} /> : undefined}
         actions={
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex h-8 items-center gap-1.5 rounded-md border border-input bg-secondary px-3 font-mono text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/70">
-                Simpan
-                <ChevronDown size={13} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Simpan</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  Simpan &amp; Tutup
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <span className="font-mono text-xs text-muted-foreground">Tersimpan otomatis</span>
             <Button
               variant="primary"
               size="sm"
@@ -147,14 +130,10 @@ export function PresentationEditorPage() {
               <Play size={12} />
               Mulai Presentasi
             </Button>
-            <button
-              onClick={() => setExportOpen(true)}
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              aria-label="Unduh media"
-              title="Unduh media"
-            >
-              <Download size={15} />
-            </button>
+            <Button variant="secondary" size="sm" onClick={() => setExportOpen(true)}>
+              <Download size={13} />
+              Unduh
+            </Button>
           </>
         }
       />
@@ -195,9 +174,13 @@ export function PresentationEditorPage() {
             ))}
           </div>
           <div className="border-t border-border p-4">
-            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/50 py-2 font-mono text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground">
+            <button
+              disabled
+              title="Fitur ini akan segera hadir"
+              className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/50 py-2 font-mono text-xs text-muted-foreground opacity-60"
+            >
               <Plus size={13} />
-              Tambah Scene
+              Tambah Scene (Segera Hadir)
             </button>
           </div>
         </aside>
@@ -223,11 +206,16 @@ export function PresentationEditorPage() {
 
       <div className="fixed right-0 bottom-0 left-64 flex justify-center border-t border-border bg-card px-16 py-4">
         <div className="flex w-full max-w-3xl items-center gap-4">
-          <Sparkles size={24} className="shrink-0 text-accent" />
+          <Sparkles size={24} className="shrink-0 text-muted-foreground" />
           <input
-            placeholder="Minta perubahan pada materi... (Cth: Tambahkan kuis pilihan ganda di akhir)"
-            className="flex-1 rounded-md border border-input bg-secondary/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            disabled
+            placeholder="Segera hadir: minta perubahan materi langsung dengan AI"
+            title="Fitur ini akan segera hadir"
+            className="flex-1 cursor-not-allowed rounded-md border border-input bg-secondary/40 px-4 py-3 text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-70"
           />
+          <span className="shrink-0 rounded-full border border-border bg-secondary px-2.5 py-1 font-mono text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+            Segera Hadir
+          </span>
         </div>
       </div>
     </div>

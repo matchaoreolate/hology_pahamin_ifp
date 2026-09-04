@@ -18,9 +18,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { getCurrentUser, isAuthenticated } from "@/lib/api/auth";
 import { getLearningContext } from "@/lib/api/contexts";
 import { deleteProject, getProjects } from "@/lib/api/projects";
-import type { ApiError, LearningContextApiResponse, MediaProjectApiResponse } from "@/types/api";
+import type { ApiError, LearningContextApiResponse, MediaProjectApiResponse, UserResponse } from "@/types/api";
 import type { OutputType } from "@/types/domain";
 
 const filters = ["Semua", "Presentasi", "LKPD", "E-book"] as const;
@@ -60,9 +61,25 @@ export function DashboardPage() {
   const [error, setError] = useState<ApiError | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
+  const [user, setUser] = useState<UserResponse | null>(null);
 
   const projectListRef = useRef<HTMLDivElement>(null);
   const createButtonRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated()) return;
+    let cancelled = false;
+    getCurrentUser()
+      .then((data) => {
+        if (!cancelled) setUser(data);
+      })
+      .catch(() => {
+        // Stale/invalid token — silently keep the greeting generic.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleDelete(projectId: string) {
     setDeletingId(projectId);
@@ -171,6 +188,11 @@ export function DashboardPage() {
 
       <main className="flex flex-col gap-6 px-6 pt-6 pb-24">
         <div className="flex flex-col gap-2">
+          {user && (
+            <p className="font-mono text-sm text-muted-foreground">
+              Selamat datang, Pak/Bu {user.full_name} !
+            </p>
+          )}
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Pusat Materi</h1>
           <p className="text-sm text-muted-foreground">Kelola semua materi pembelajaran Anda</p>
         </div>
