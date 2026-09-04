@@ -21,7 +21,14 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     API_V1_STR: str = "/api/v1"
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:3001,http://127.0.0.1:3001"
+    )
+    ALLOWED_ORIGIN_REGEX: str | None = (
+        r"^https:\/\/(?:[a-zA-Z0-9-]+\.)*(?:vercel\.app|netlify\.app|pages\.dev|onrender\.com|railway\.app)(?::\d+)?$"
+    )
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
@@ -29,11 +36,25 @@ class Settings(BaseSettings):
         # Accept either a plain comma-separated string or a JSON list string
         if isinstance(v, list):
             return ",".join(v)
-        return str(v) if v else "http://localhost:3000"
+        return str(v) if v else (
+            "http://localhost:3000,http://127.0.0.1:3000,"
+            "http://localhost:5173,http://127.0.0.1:5173,"
+            "http://localhost:3001,http://127.0.0.1:3001"
+        )
 
     def get_cors_origins(self) -> list[str]:
         """Return ALLOWED_ORIGINS as a list for use in CORSMiddleware."""
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+        origins = [o.strip().rstrip("/") for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+        if self.APP_ENV != "production":
+            for dev_origin in [
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            ]:
+                if dev_origin not in origins:
+                    origins.append(dev_origin)
+        return origins
 
     # --- Security ---
     SECRET_KEY: str = "CHANGE_ME_IN_PRODUCTION"

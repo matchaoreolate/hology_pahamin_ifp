@@ -117,7 +117,11 @@ Authorization: Bearer <access_token>
 
 # --- CORS ---
 cors_origins = settings.get_cors_origins()
-cors_origin_regex = None
+cors_origin_regex = (
+    settings.ALLOWED_ORIGIN_REGEX.strip()
+    if settings.ALLOWED_ORIGIN_REGEX and settings.ALLOWED_ORIGIN_REGEX.strip()
+    else None
+)
 if "*" in cors_origins:
     cors_origins = []
     cors_origin_regex = r".*"
@@ -129,6 +133,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition", "Content-Type", "Content-Length", "Accept-Ranges"],
 )
 
 
