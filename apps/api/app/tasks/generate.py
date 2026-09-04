@@ -6,10 +6,10 @@ import asyncio
 import uuid
 from datetime import datetime, timezone
 
-from celery import group
+from celery import chord
 
 from app.core.logging import get_logger
-from app.db.base import AsyncSessionLocal
+from app.db.base import AsyncSessionLocal, engine
 from app.repositories.output_repository import OutputRepository
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.presentation_artifact import PresentationArtifact
@@ -37,32 +37,42 @@ def run_async(coro):
     try:
         return loop.run_until_complete(coro)
     finally:
+        # Dispose the engine's connection pool so asyncpg connections bound to
+        # this (about-to-be-closed) loop don't leak into the next task's loop.
+        loop.run_until_complete(engine.dispose())
         loop.close()
 
 
 @celery_app.task(bind=True, name="app.tasks.generate.generate_all_outputs_task")
 def generate_all_outputs_task(self, project_id: str):
-    """Orchestrator task — dispatches individual generate tasks in parallel."""
-    async def _run():
-        project, selected, config = await fetch_project_for_generation(project_id)
-        if not project:
-            return
+    """Orchestrator task — dispatches individual generate tasks in parallel via chord."""
+    async def _prepare():
+        return await fetch_project_for_generation(project_id)
 
-        tasks = [
-            _task.s(project_id, config.get(key, {}))
-            for key, _task in [
-                ("presentation", generate_presentation_task),
-                ("lkpd", generate_lkpd_task),
-                ("ebook", generate_ebook_task),
-            ]
-            if key in selected
+    project, selected, config = run_async(_prepare())
+    if not project:
+        return
+
+    tasks = [
+        _task.s(project_id, config.get(key, {}))
+        for key, _task in [
+            ("presentation", generate_presentation_task),
+            ("lkpd", generate_lkpd_task),
+            ("ebook", generate_ebook_task),
         ]
-        if tasks:
-            group(tasks).apply_async().get(timeout=300, propagate=False)
+        if key in selected
+    ]
+    if tasks:
+        # chord: run all output tasks in parallel, then call finalize once all finish
+        chord(tasks)(finalize_generation_task.s(project_id))
+    else:
+        run_async(update_final_project_status(project_id))
 
-        await update_final_project_status(project_id)
 
-    run_async(_run())
+@celery_app.task(name="app.tasks.generate.finalize_generation_task")
+def finalize_generation_task(_results, project_id: str):
+    """Chord callback — runs once every output task for a project has finished."""
+    run_async(update_final_project_status(project_id))
 
 
 @celery_app.task(bind=True, name="app.tasks.generate.generate_presentation_task")
