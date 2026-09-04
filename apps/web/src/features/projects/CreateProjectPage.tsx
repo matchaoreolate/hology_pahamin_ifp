@@ -1,5 +1,5 @@
 import { BookOpen, Check, Info, MonitorPlay, ScrollText, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -11,9 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { createLearningContext } from "@/lib/api/contexts";
 import { createProject, generateProject } from "@/lib/api/projects";
+import { usePollProjectGeneration } from "@/lib/api/polling";
 import { cn } from "@/lib/utils";
 import type { ApiError, Fase, Kelas, MataPelajaran } from "@/types/api";
 import type { OutputType } from "@/types/domain";
+
+import { GenerationLoadingState } from "./GenerationLoadingState";
 
 const outputOptions: { value: OutputType; title: string; description: string; icon: typeof MonitorPlay }[] = [
   {
@@ -70,8 +73,34 @@ export function CreateProjectPage() {
   const [tujuanPembelajaran, setTujuanPembelajaran] = useState("");
   const [konteksLokal, setKonteksLokal] = useState("");
 
-  const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // "form": editing. "starting": creating context/project. "generating": generation
+  // triggered, polling status. "error": creation or generation failed.
+  const [phase, setPhase] = useState<"form" | "starting" | "generating" | "error">("form");
+  const [phaseError, setPhaseError] = useState<string | null>(null);
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
+  const [pendingRoute, setPendingRoute] = useState<string>("presentation");
+
+  const { status: pollStatus, error: pollError } = usePollProjectGeneration(
+    pendingProjectId,
+    phase === "generating",
+  );
+
+  useEffect(() => {
+    if (phase !== "generating") return;
+    if (pollError) {
+      setPhaseError(pollError.detail);
+      setPhase("error");
+      return;
+    }
+    if (pollStatus?.project_status === "done") {
+      navigate(`/projects/${pendingProjectId}/${pendingRoute}`);
+    } else if (pollStatus?.project_status === "error") {
+      setPhaseError(pollStatus.error_message ?? "Terjadi kesalahan saat membuat materi.");
+      setPhase("error");
+    }
+  }, [phase, pollStatus, pollError, pendingProjectId, pendingRoute, navigate]);
 
   const durasiValue = Number(durasiMenit);
   const isDurasiInvalid =
@@ -84,7 +113,21 @@ export function CreateProjectPage() {
     );
   }
 
+  /** Kicks off (or retries) generation for an already-created project. */
+  async function triggerGenerate(projectId: string) {
+    setPhaseError(null);
+    setPhase("generating");
+    try {
+      await generateProject(projectId);
+    } catch (err) {
+      setPhaseError((err as ApiError).detail);
+      setPhase("error");
+    }
+  }
+
   async function handleGenerate() {
+    if (phase !== "form" && phase !== "error") return; // guard against duplicate submission
+
     const faseKelas = faseKelasOptions.find((o) => o.label === faseKelasLabel);
     if (!mataPelajaran || !faseKelas || topik.trim().length < 3 || tujuanPembelajaran.trim().length < 10) {
       setSubmitError(
@@ -93,8 +136,15 @@ export function CreateProjectPage() {
       return;
     }
 
+    // Retrying after a generation failure — the project already exists, just re-trigger it.
+    if (pendingProjectId) {
+      void triggerGenerate(pendingProjectId);
+      return;
+    }
+
     setSubmitError(null);
-    setSubmitting(true);
+    setPhaseError(null);
+    setPhase("starting");
     try {
       const context = await createLearningContext({
         fase: faseKelas.fase,
@@ -112,16 +162,12 @@ export function CreateProjectPage() {
         selected_outputs: selectedOutputs,
       });
 
-      // Best-effort — generation is async and the editor pages fall back to mock
-      // content until real output is ready, so a failure here shouldn't block navigation.
-      await generateProject(project.id).catch(() => {});
-
-      const route = selectedOutputs[0] ?? "presentation";
-      navigate(`/projects/${project.id}/${route}`);
+      setPendingProjectId(project.id);
+      setPendingRoute(selectedOutputs[0] ?? "presentation");
+      await triggerGenerate(project.id);
     } catch (err) {
-      setSubmitError((err as ApiError).detail);
-    } finally {
-      setSubmitting(false);
+      setPhaseError((err as ApiError).detail);
+      setPhase("error");
     }
   }
 
@@ -144,6 +190,13 @@ export function CreateProjectPage() {
           </p>
         </div>
 
+        {phase !== "form" ? (
+          <GenerationLoadingState
+            phase={phase === "starting" ? "starting" : "generating"}
+            errorMessage={phase === "error" ? phaseError : null}
+            onRetry={() => void handleGenerate()}
+          />
+        ) : (
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -303,19 +356,22 @@ export function CreateProjectPage() {
             </div>
           </section>
         </form>
+        )}
 
-        {submitError && (
+        {phase === "form" && submitError && (
           <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {submitError}
           </p>
         )}
 
-        <div className="flex justify-end pb-12">
-          <Button type="button" variant="primary" onClick={() => void handleGenerate()} disabled={submitting}>
-            <Sparkles size={16} />
-            {submitting ? "Membuat materi..." : "Generate dengan AI"}
-          </Button>
-        </div>
+        {phase === "form" && (
+          <div className="flex justify-end pb-12">
+            <Button type="button" variant="primary" onClick={() => void handleGenerate()}>
+              <Sparkles size={16} />
+              Generate dengan AI
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );
