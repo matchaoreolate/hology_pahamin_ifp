@@ -1,4 +1,18 @@
 services:
+  # ── React Frontend (Vite + nginx) ────────
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: pahamin_web
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    networks:
+      - pahamin_net
+
   # ── FastAPI Backend ──────────────────────
   api:
     build:
