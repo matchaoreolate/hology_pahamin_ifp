@@ -305,17 +305,18 @@ def test_visual_decision_layer_approves_keyword_visual_slides():
     assert _should_generate_image(proses_slide), "proses slide must be approved"
 
 
-def test_visual_decision_layer_skips_generic_visual_slides():
-    """Fix #2: visual slides without instructional visual keywords must be skipped (anti-AI-slop)."""
+def test_visual_decision_layer_accepts_all_visual_slides():
+    """All visual slides requested by teacher/AI must be enriched with images."""
     from app.services.ai.visual_asset_pipeline import _should_generate_image
 
-    generic_slide = PresentationSlide(
+    visual_slide = PresentationSlide(
         id="s1", order=1, type="visual",
         title="Slide Cantik",
         content="Mari kita mulai belajar hari ini!",
     )
 
-    assert not _should_generate_image(generic_slide), "generic visual slide must be skipped"
+    assert _should_generate_image(visual_slide), "all visual slides must be approved"
+
 
 
 def test_visual_decision_layer_skips_slides_with_existing_assets():

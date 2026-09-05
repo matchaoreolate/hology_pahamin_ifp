@@ -77,16 +77,19 @@ Hasilkan tepat {n} slide dalam format JSON berikut:
 
 {schema_example}
 
-### ATURAN SLIDE:
+### ATURAN SLIDE & KUALITAS KONTEN:
 1. `type` HANYA boleh: "opening", "content", "visual", "interactive", "closing".
-2. Slide pertama (order 1) HARUS bertipe "opening".
-3. Slide terakhir HARUS bertipe "closing".
-4. Slide "visual" WAJIB memiliki `assets: []` (list kosong) — backend akan meng-inject gambar yang relevan.
-   DILARANG mengarang URL gambar. Cukup beri `title` dan `content` yang deskriptif.
+2. Slide pertama (order 1) HARUS bertipe "opening". Beri judul pembuka yang ceria dan seru (sertakan emoji menarik seperti 🚀, ✨, 🌟, 🌱).
+3. Slide terakhir HARUS bertipe "closing" berisi pesan apresiasi dan rangkuman seru ("Hebat! Kalian Luar Biasa! 🎉").
+4. Slide "visual" WAJIB memiliki `assets: []` (list kosong) — backend akan men-generate ilustrasi 3D otomatis.
+   Beri `title` yang spesifik dan `content` yang deskriptif mengenai adegan visualnya agar ilustrasi yang dihasilkan AI sangat jelas dan relevan.
+   Contoh: `title: "Metamorfosis Ulat Menjadi Kepompong 🐛"`, `content: "Seekor ulat hijau lucu sedang menempel di ranting pohon dan mulai membungkus dirinya menjadi kepompong emas."`
 {INTERACTION_RULES}
-6. Presentasi tidak harus memiliki gambar di setiap slide. Kombinasi yang valid:
-   Opening → Content → Visual → Interactive → Content → Interactive → Closing
-   Bahkan deck tanpa satu pun slide "visual" tetap valid jika memang tidak dibutuhkan.
+6. Gaya Bahasa & Pedagogi Anak SD:
+   - Gunakan gaya bahasa antusias, penuh rasa ingin tahu, dan interaktif ("Wah, tahukah kamu? 🔍", "Ayo coba amati! 👀").
+   - Judul di setiap slide harus menarik dan beri emoji yang relevan.
+   - Pada slide bertipe "content", buat poin-poin yang mudah dipahami anak dengan analogi sederhana dan konkret dari kehidupan sehari-hari mereka.
+   - Variasikan alur: Opening → Content → Visual → Interactive → Content → Visual → Interactive → Closing.
 
 PENTING:
 - Field `content` HARUS bertipe STRING (teks tunggal), DILARANG menghasilkan list/array untuk content. Jika ada poin-poin, gabungkan menjadi satu string dengan pemisah baris baru (\n).
