@@ -8,7 +8,7 @@ Contract guarantees:
 - Interaction primitives: choice | matching | sorting | reveal | drag_drop
 """
 from typing import Annotated, Literal, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ─────────────────────────────────────────────
@@ -144,6 +144,13 @@ class PresentationSlide(BaseModel):
     interaction: InteractionType | None = None
     teacher_note: str | None = None
     speaker_script: str | None = None
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def coerce_content_to_str(cls, v):
+        if isinstance(v, list):
+            return "\n".join(str(item) for item in v)
+        return v
 
 
 class PresentationMeta(BaseModel):

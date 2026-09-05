@@ -330,3 +330,17 @@ def test_visual_decision_layer_skips_slides_with_existing_assets():
     )
 
     assert not _should_generate_image(slide_with_assets), "slide with existing assets must be skipped"
+
+
+def test_presentation_slide_content_list_coerced_to_str():
+    """Verify that if AI returns a list of strings for content, it is coerced to a newline-separated string."""
+    data = {
+        "id": "s-1",
+        "order": 1,
+        "type": "content",
+        "title": "Bangun Datar",
+        "content": ["Poin 1: Persegi", "Poin 2: Lingkaran"],
+    }
+    slide = PresentationSlide.model_validate(data)
+    assert slide.content == "Poin 1: Persegi\nPoin 2: Lingkaran"
+

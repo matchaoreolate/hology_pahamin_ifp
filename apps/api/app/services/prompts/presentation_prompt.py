@@ -89,6 +89,7 @@ Hasilkan tepat {n} slide dalam format JSON berikut:
    Bahkan deck tanpa satu pun slide "visual" tetap valid jika memang tidak dibutuhkan.
 
 PENTING:
+- Field `content` HARUS bertipe STRING (teks tunggal), DILARANG menghasilkan list/array untuk content. Jika ada poin-poin, gabungkan menjadi satu string dengan pemisah baris baru (\n).
 - DILARANG menghasilkan tag HTML atau JavaScript mentah.
 - DILARANG mengarang URL, path, atau link gambar dalam field `assets`.
 - Bahasa Indonesia yang digunakan harus santun, komunikatif, dan sesuai fase perkembangan anak SD.
