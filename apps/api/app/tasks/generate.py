@@ -12,6 +12,7 @@ from app.core.logging import get_logger
 from app.db.base import AsyncSessionLocal, engine
 from app.repositories.output_repository import OutputRepository
 from app.repositories.project_repository import ProjectRepository
+from app.schemas.document_artifacts import EbookArtifact, LkpdArtifact
 from app.schemas.presentation_artifact import PresentationArtifact
 from app.services.ai.gemini_service import gemini_service
 from app.services.ai.visual_asset_pipeline import enrich_with_images
@@ -142,6 +143,16 @@ async def _generate_output(project_id: str, output_type: str, config: dict):
 
                 # Step 3: Final validation before persist
                 content = PresentationArtifact.model_validate(artifact.model_dump(mode="json")).model_dump(mode="json")
+
+            elif output_type == "lkpd":
+                artifact = LkpdArtifact.model_validate(content)
+                log.info("LKPD artifact validated", sections=len(artifact.sections))
+                content = artifact.model_dump(mode="json")
+
+            elif output_type == "ebook":
+                artifact = EbookArtifact.model_validate(content)
+                log.info("E-book artifact validated", sections=len(artifact.sections))
+                content = artifact.model_dump(mode="json")
 
             output.content = content
             output.status = "done"

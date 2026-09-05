@@ -232,9 +232,60 @@ export interface FeedbackResponse {
   };
 }
 
-// LKPD / e-book content is free-form AI output — no fixed Pydantic schema on the backend.
-export type LkpdContent = Record<string, unknown>;
-export type EbookContent = Record<string, unknown>;
+// ── Document Artifact Contracts (v0.1) ────────────────────────────────────
+
+export interface LkpdMeta {
+  title: string;
+  mata_pelajaran: string;
+  topik: string;
+  fase: string;
+  alokasi_waktu_menit?: number | null;
+}
+
+export type AnswerSpaceType = "lined" | "boxed" | "short";
+
+export interface LkpdQuestionActivity {
+  type: "question";
+  question: string;
+  answer_space?: AnswerSpaceType;
+}
+
+export interface LkpdInstructionActivity {
+  type: "instruction";
+  content: string;
+}
+
+export type LkpdActivity = LkpdQuestionActivity | LkpdInstructionActivity;
+
+export interface LkpdSection {
+  title: string;
+  instruction?: string | null;
+  activities: LkpdActivity[];
+}
+
+export interface LkpdContent {
+  version: "0.1";
+  meta: LkpdMeta;
+  sections: LkpdSection[];
+}
+
+export interface EbookMeta {
+  title: string;
+  mata_pelajaran: string;
+  topik: string;
+  fase: string;
+}
+
+export interface EbookSection {
+  title: string;
+  content: string;
+}
+
+export interface EbookContent {
+  version: "0.1";
+  meta: EbookMeta;
+  sections: EbookSection[];
+}
 
 // ── Errors ───────────────────────────────────────────────────────────────
 

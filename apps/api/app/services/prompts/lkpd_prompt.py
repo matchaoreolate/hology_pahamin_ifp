@@ -1,4 +1,4 @@
-"""Builds the LKPD (student worksheet) generation prompt."""
+"""Builds the LKPD (student worksheet) generation prompt (Contract v0.1)."""
 from app.services.prompts.context_builder import (
     LearningContextData,
     build_context_preamble,
@@ -9,31 +9,18 @@ def build_lkpd_prompt(ctx: LearningContextData, config: dict) -> str:
     preamble = build_context_preamble(ctx)
 
     format_tantangan = config.get("format_tantangan", "campuran")
-    jumlah_soal = config.get("jumlah_soal", 10)
-    distribusi = config.get("distribusi_kesulitan", "50_mudah_50_hots")
+    jumlah_soal = config.get("jumlah_soal", 5)
     injeksi_lokal = config.get("injeksi_konteks_lokal", True)
-    rubrik = config.get("rubrik_penilaian", True)
-
-    dist_map = {
-        "70_mudah_30_hots": (round(jumlah_soal * 0.7), round(jumlah_soal * 0.3)),
-        "50_mudah_50_hots": (round(jumlah_soal * 0.5), round(jumlah_soal * 0.5)),
-        "30_mudah_70_hots": (round(jumlah_soal * 0.3), round(jumlah_soal * 0.7)),
-    }
-    mudah_count, hots_count = dist_map.get(distribusi, (5, 5))
 
     lokal_instruction = (
-        f"WAJIB: Semua soal cerita menggunakan latar belakang konteks {ctx.konteks_geografis}. "
-        f"Gunakan nama tokoh, tempat, dan benda yang familiar di wilayah {ctx.konteks_geografis}."
+        f"WAJIB: Soal cerita dan aktivitas menggunakan latar belakang konteks {ctx.konteks_geografis}. "
+        f"Gunakan nama tokoh, tempat, atau benda lokal yang akrab bagi siswa di wilayah {ctx.konteks_geografis}."
         if injeksi_lokal and ctx.konteks_geografis else ""
-    )
-
-    rubrik_instruction = (
-        "Sertakan field 'rubrik' berisi kunci jawaban dan bobot skor per soal."
-        if rubrik else "Jangan sertakan kunci jawaban (field rubrik kosong)."
     )
 
     prompt = f"""
 Kamu adalah sistem generator LKPD (Lembar Kerja Peserta Didik) AI untuk guru Sekolah Dasar Indonesia.
+Hasilkan dokumen LKPD terstruktur untuk dicetak dan dikerjakan oleh siswa SD.
 
 ## KONTEKS PEDAGOGIK
 {preamble}
@@ -43,48 +30,74 @@ Kamu adalah sistem generator LKPD (Lembar Kerja Peserta Didik) AI untuk guru Sek
 - Topik: {ctx.topik}
 - Tujuan Pembelajaran: {ctx.tujuan_pembelajaran}
 - Fase: {ctx.fase} (Kelas {ctx.kelas})
+- Alokasi Waktu: {ctx.alokasi_waktu_jp * 35} menit
 
 {lokal_instruction}
 
-## KONFIGURASI SOAL
-- Format: {format_tantangan}
-- Total Soal: {jumlah_soal}
-- Soal Mudah (C1-C3 Bloom): {mudah_count} soal
-- Soal HOTS (C4-C6 Bloom): {hots_count} soal
+## SPESIFIKASI KONTRAK OUTPUT JSON (LKPD v0.1)
 
-## OUTPUT JSON
+Hasilkan output JSON murni dengan format persis seperti ini:
 
 {{
-  "header": {{
+  "version": "0.1",
+  "meta": {{
+    "title": "LKPD {ctx.topik}",
     "mata_pelajaran": "{ctx.mata_pelajaran}",
     "topik": "{ctx.topik}",
     "fase": "{ctx.fase}",
-    "kelas": "{ctx.kelas}",
-    "alokasi_waktu": "{ctx.alokasi_waktu_jp * 35} menit"
+    "alokasi_waktu_menit": {ctx.alokasi_waktu_jp * 35}
   }},
-  "soal": [
+  "sections": [
     {{
-      "nomor": 1,
-      "tipe": "isian_singkat|pilihan_ganda|mencocokkan",
-      "tingkat": "mudah|hots",
-      "bloom_level": "C1|C2|C3|C4|C5|C6",
-      "pertanyaan": "Teks pertanyaan",
-      "opsi": ["A. ...", "B. ...", "C. ...", "D. ..."],
-      "jawaban_benar": "A",
-      "skor": 10
+      "title": "Ayo Mengamati",
+      "instruction": "Amati benda atau peristiwa berikut dengan saksama.",
+      "activities": [
+        {{
+          "type": "question",
+          "question": "Pertanyaan pengamatan...",
+          "answer_space": "lined"
+        }}
+      ]
+    }},
+    {{
+      "title": "Ayo Berdiskusi",
+      "instruction": "Diskusikan bersama teman kelompokmu.",
+      "activities": [
+        {{
+          "type": "instruction",
+          "content": "Petunjuk aktivitas diskusi kelompok..."
+        }}
+      ]
+    }},
+    {{
+      "title": "Ayo Berlatih",
+      "instruction": "Jawablah pertanyaan-pertanyaan berikut secara mandiri.",
+      "activities": [
+        {{
+          "type": "question",
+          "question": "Pertanyaan latihan singkat...",
+          "answer_space": "short"
+        }},
+        {{
+          "type": "question",
+          "question": "Pertanyaan latihan analisis...",
+          "answer_space": "boxed"
+        }}
+      ]
     }}
-  ],
-  "rubrik": {{
-    "total_skor": 100,
-    "kunci_jawaban": {{"1": "A", "2": "B"}},
-    "pedoman_penskoran": "..."
-  }}
+  ]
 }}
 
-PENTING:
-- Untuk pilihan ganda: sertakan 4 opsi (A-D), 1 benar, pengecoh yang masuk akal.
-- Untuk isian singkat: jawaban harus jelas dan singkat.
-- {rubrik_instruction}
-- Output HANYA JSON, tanpa penjelasan tambahan.
+### ATURAN WAJIB:
+1. `version` HARUS "0.1".
+2. `meta.alokasi_waktu_menit` berupa ANGKA positif (contoh: {ctx.alokasi_waktu_jp * 35}), BUKAN string.
+3. Minimal 2-4 `sections` yang menggambarkan alur belajar pedagogis (misal: Mengamati, Mencoba/Mendiskusikan, Berlatih).
+4. `activities` hanya boleh bertipe:
+   - "question": WAJIB ada field `question` (string) dan `answer_space` ("lined" | "boxed" | "short").
+   - "instruction": WAJIB ada field `content` (string).
+5. DILARANG membuat tipe activity di luar "question" dan "instruction".
+6. Bahasa ramah anak SD, jelas, komunikatif, dan sesuai fase perkembangan anak SD.
+7. Output HANYA JSON murni yang valid tanpa awalan markdown seperti ```json atau penutup apa pun.
 """
     return prompt.strip()
+

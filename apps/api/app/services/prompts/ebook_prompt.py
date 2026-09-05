@@ -1,4 +1,4 @@
-"""Builds the e-book generation prompt."""
+"""Builds the e-book generation prompt (Contract v0.1)."""
 from app.services.prompts.context_builder import (
     LearningContextData,
     build_context_preamble,
@@ -9,24 +9,21 @@ def build_ebook_prompt(ctx: LearningContextData, config: dict) -> str:
     preamble = build_context_preamble(ctx)
 
     format_narasi = config.get("format_narasi", "buku_cerita")
-    glosarium = config.get("glosarium_cerdas", True)
-    pemantik = config.get("pemantik_diskusi_rumah", True)
 
     narasi_instruction = {
         "buku_cerita": (
-            "Tulis materi dalam format buku cerita bergambar digital. "
-            "Gunakan narasi orang ketiga dengan tokoh anak yang melakukan petualangan belajar. "
-            "Setiap bab dimulai dengan ilustrasi cerita sebelum masuk ke penjelasan konsep."
+            "Gunakan gaya bahasa narasi cerita petualangan yang hangat dan menyenangkan. "
+            "Konsep materi dijelaskan melalui alur cerita yang mudah dipahami."
         ),
         "dialog_karakter": (
-            "Tulis materi dalam format dialog antara 2-3 karakter (misal: guru robot, murid pemberani, dan ilmuwan tua). "
-            "Konsep dijelaskan melalui percakapan yang natural dan menyenangkan."
+            "Gunakan gaya dialog interaktif antara karakter murid dan guru/mentor. "
+            "Konsep materi dijelaskan lewat percakapan yang hidup dan ramah anak."
         ),
-    }.get(format_narasi, "")
+    }.get(format_narasi, "Gunakan gaya bahasa cerita edukatif yang ramah anak SD.")
 
     prompt = f"""
-Kamu adalah sistem generator E-Book pembelajaran AI untuk Sekolah Dasar Indonesia.
-E-Book ini akan diakses orang tua dan siswa di rumah via QR Code.
+Kamu adalah sistem generator E-Book bacaan pembelajaran AI untuk Sekolah Dasar Indonesia.
+E-Book ini berfungsi sebagai bahan bacaan/referensi mandiri yang menyenangkan bagi siswa dan orang tua.
 
 ## KONTEKS PEDAGOGIK
 {preamble}
@@ -37,35 +34,45 @@ E-Book ini akan diakses orang tua dan siswa di rumah via QR Code.
 - Tujuan Pembelajaran: {ctx.tujuan_pembelajaran}
 - Fase: {ctx.fase} (Kelas {ctx.kelas})
 
-## FORMAT NARASI
+## GAYA PENULISAN
 {narasi_instruction}
 
-## OUTPUT JSON
+## SPESIFIKASI KONTRAK OUTPUT JSON (E-book v0.1)
+
+Hasilkan output JSON murni dengan format persis seperti ini:
 
 {{
-  "metadata": {{
-    "judul": "Judul e-book yang menarik",
-    "topik": "{ctx.topik}",
+  "version": "0.1",
+  "meta": {{
+    "title": "{ctx.topik}",
     "mata_pelajaran": "{ctx.mata_pelajaran}",
+    "topik": "{ctx.topik}",
     "fase": "{ctx.fase}"
   }},
-  "chapters": [
+  "sections": [
     {{
-      "chapter_number": 1,
-      "judul_chapter": "...",
-      "ilustrasi_description": "Deskripsi detail ilustrasi pembuka chapter",
-      "konten": "Teks isi chapter dalam format {format_narasi}",
-      "poin_kunci": ["Poin 1", "Poin 2"]
+      "title": "Apa Itu {ctx.topik}?",
+      "content": "Paragraf pengantar konsep dasar materi..."
+    }},
+    {{
+      "title": "Bagian dan Ciri Penting",
+      "content": "Paragraf penjelasan detail materi..."
+    }},
+    {{
+      "title": "Contoh di Sekitar Kita",
+      "content": "Paragraf contoh penerapan materi dalam kehidupan sehari-hari..."
     }}
-  ],
-  "glosarium": {('[{{"istilah": "...", "definisi": "...", "contoh": "..."}}]' if glosarium else '[]')},
-  "pemantik_diskusi": {('[{{"pertanyaan": "...", "petunjuk_orang_tua": "..."}}]' if pemantik else '[]')}
+  ]
 }}
 
-PENTING:
-- Buat 3-5 chapter yang mengalir dari pengenalan ke pemahaman mendalam.
-- {'Sertakan minimal 5 istilah kunci di glosarium dengan definisi ramah anak.' if glosarium else 'Kosongkan array glosarium.'}
-- {'Sertakan 3 pertanyaan pemantik diskusi untuk orang tua + petunjuk cara mendiskusikannya.' if pemantik else 'Kosongkan array pemantik_diskusi.'}
-- Output HANYA JSON, tanpa penjelasan tambahan.
+### ATURAN WAJIB:
+1. `version` HARUS "0.1".
+2. `meta` WAJIB berisi title, mata_pelajaran, topik, dan fase.
+3. Hasilkan 3-5 `sections` yang mengalir dari pengenalan, pendalaman, hingga contoh nyata.
+4. Setiap section WAJIB memiliki `title` (string) dan `content` (string tunggal).
+5. PENTING: Field `content` HARUS berupa SINGLE STRING, DILARANG menghasilkan array/list. Jika terdiri dari beberapa paragraf, pisahkan dengan newline ganda (\\n\\n).
+6. Dilarang menghasilkan struktur JSON tambahan di luar spesifikasi ini.
+7. Output HANYA JSON murni yang valid tanpa awalan markdown seperti ```json atau penutup apa pun.
 """
     return prompt.strip()
+
