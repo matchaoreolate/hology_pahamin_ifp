@@ -40,20 +40,21 @@ SCHEMA_TEMPLATE = """\
 
 INTERACTION_RULES = """\
 5. Untuk slide bertipe "interactive", field `interaction` HARUS menggunakan salah satu dari 5 primitive berikut:
+   PENTING: Selalu sertakan EMOJI yang relevan pada setiap opsi, label, dan pasangan agar anak-anak SD tertarik saat menyentuh layar!
 
    a) **Choice** (`"type": "choice"`):
       Struktur: instruction, options[{id, label}], correct_answer (berisi id), feedback{correct, incorrect}
       Contoh:
       {
         "type": "choice",
-        "instruction": "Apa fungsi utama akar pada tumbuhan?",
+        "instruction": "Apa fungsi utama akar pada tumbuhan? 🌱",
         "options": [
-          {"id": "opt-a", "label": "Menyerap air dan mineral"},
-          {"id": "opt-b", "label": "Melakukan fotosintesis"},
-          {"id": "opt-c", "label": "Menghasilkan bunga"}
+          {"id": "opt-a", "label": "💧 Menyerap air dan mineral dari tanah"},
+          {"id": "opt-b", "label": "☀️ Melakukan fotosintesis di bawah sinar matahari"},
+          {"id": "opt-c", "label": "🌸 Menghasilkan bunga dan buah"}
         ],
         "correct_answer": "opt-a",
-        "feedback": {"correct": "Tepat! Akar menyerap air dan mineral dari tanah.", "incorrect": "Coba lagi! Perhatikan fungsi utama akar."}
+        "feedback": {"correct": "🎉 Tepat sekali! Akar menyerap air dan mineral dari tanah.", "incorrect": "💡 Coba lagi yuk! Perhatikan bagian tumbuhan yang ada di dalam tanah."}
       }
 
    b) **Matching** (`"type": "matching"`):
@@ -61,12 +62,12 @@ INTERACTION_RULES = """\
       Contoh:
       {
         "type": "matching",
-        "instruction": "Pasangkan setiap hewan dengan habitatnya!",
+        "instruction": "Pasangkan setiap hewan dengan habitat aslinya! 🐾",
         "pairs": [
-          {"id": "pair-1", "left": {"id": "left-1", "label": "Ikan"}, "right": {"id": "right-1", "label": "Laut"}},
-          {"id": "pair-2", "left": {"id": "left-2", "label": "Elang"}, "right": {"id": "right-2", "label": "Udara"}}
+          {"id": "pair-1", "left": {"id": "left-1", "label": "🐟 Ikan Badut"}, "right": {"id": "right-1", "label": "🌊 Terumbu Karang"}},
+          {"id": "pair-2", "left": {"id": "left-2", "label": "🦅 Burung Elang"}, "right": {"id": "right-2", "label": "🌲 Pohon Tinggi di Hutan"}}
         ],
-        "feedback": {"correct": "Hebat! Semua pasangan tepat.", "incorrect": "Ada yang kurang tepat, coba lagi!"}
+        "feedback": {"correct": "🌟 Luar biasa! Semua pasangan hewan dan habitatnya cocok!", "incorrect": "🤔 Ada pasangan yang belum pas, ayo coba cari lagi!"}
       }
 
    c) **Sorting** (`"type": "sorting"`):
@@ -74,16 +75,16 @@ INTERACTION_RULES = """\
       Contoh:
       {
         "type": "sorting",
-        "instruction": "Kelompokkan benda-benda berikut!",
+        "instruction": "Kelompokkan benda-benda berikut ke kotak yang tepat! 📦",
         "categories": [
-          {"id": "cat-hidup", "label": "Makhluk Hidup"},
-          {"id": "cat-mati", "label": "Benda Mati"}
+          {"id": "cat-hidup", "label": "🌿 Makhluk Hidup"},
+          {"id": "cat-mati", "label": "🧱 Benda Tak Hidup"}
         ],
         "items": [
-          {"id": "item-1", "label": "Pohon", "correct_category": "cat-hidup"},
-          {"id": "item-2", "label": "Batu", "correct_category": "cat-mati"}
+          {"id": "item-1", "label": "🌳 Pohon Mangga", "correct_category": "cat-hidup"},
+          {"id": "item-2", "label": "🪨 Batu Kali", "correct_category": "cat-mati"}
         ],
-        "feedback": {"correct": "Benar semua!", "incorrect": "Ada yang perlu diperbaiki."}
+        "feedback": {"correct": "🎉 Hebat! Semua benda dikelompokkan dengan benar!", "incorrect": "🧐 Coba periksa kembali ya, apakah ada benda yang tertukar?"}
       }
 
    d) **Reveal** (`"type": "reveal"`):
@@ -91,10 +92,10 @@ INTERACTION_RULES = """\
       Contoh:
       {
         "type": "reveal",
-        "instruction": "Klik setiap kartu untuk lihat jawabannya!",
+        "instruction": "Sentuh setiap kartu misteri untuk membuka rahasianya! 🔍",
         "items": [
-          {"id": "rv-1", "label": "Evaporasi", "revealed_content": "Air menguap karena panas matahari."},
-          {"id": "rv-2", "label": "Kondensasi", "revealed_content": "Uap air mendingin menjadi titik-titik air."}
+          {"id": "rv-1", "label": "☀️ Penguapan (Evaporasi)", "revealed_content": "Air di laut dan sungai menguap ke udara karena hangatnya sinar matahari."},
+          {"id": "rv-2", "label": "☁️ Pembentukan Awan (Kondensasi)", "revealed_content": "Uap air yang naik ke atas mendingin dan berkumpul membentuk awan putih yang indah."}
         ]
       }
 
@@ -104,11 +105,11 @@ INTERACTION_RULES = """\
       Contoh:
       {
         "type": "drag_drop",
-        "instruction": "Seret setiap tahap ke urutan yang benar!",
+        "instruction": "Tarik dan letakkan setiap tahap ke kotak urutan yang benar! 🎯",
         "items": [
-          {"id": "item-evap", "label": "Evaporasi"},
-          {"id": "item-kond", "label": "Kondensasi"},
-          {"id": "item-presi", "label": "Presipitasi"}
+          {"id": "item-telur", "label": "🥚 Telur"},
+          {"id": "item-ulat", "label": "🐛 Ulat Lucu"},
+          {"id": "item-kupu", "label": "🦋 Kupu-kupu Indah"}
         ],
         "targets": [
           {"id": "target-1", "label": "Tahap 1"},
@@ -116,9 +117,9 @@ INTERACTION_RULES = """\
           {"id": "target-3", "label": "Tahap 3"}
         ],
         "answers": [
-          {"item_id": "item-evap", "target_id": "target-1"},
-          {"item_id": "item-kond", "target_id": "target-2"},
-          {"item_id": "item-presi", "target_id": "target-3"}
+          {"item_id": "item-telur", "target_id": "target-1"},
+          {"item_id": "item-ulat", "target_id": "target-2"},
+          {"item_id": "item-kupu", "target_id": "target-3"}
         ],
-        "feedback": {"correct": "Urutan siklus air sudah tepat!", "incorrect": "Ada tahap yang terbalik, coba lagi!"}
+        "feedback": {"correct": "🎉 Luar biasa! Urutannya tepat dan sempurna!", "incorrect": "Ayo coba teliti lagi urutannya dari awal."}
       }"""

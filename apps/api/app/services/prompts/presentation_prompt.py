@@ -85,11 +85,13 @@ Hasilkan tepat {n} slide dalam format JSON berikut:
    Beri `title` yang spesifik dan `content` yang deskriptif mengenai adegan visualnya agar ilustrasi yang dihasilkan AI sangat jelas dan relevan.
    Contoh: `title: "Metamorfosis Ulat Menjadi Kepompong 🐛"`, `content: "Seekor ulat hijau lucu sedang menempel di ranting pohon dan mulai membungkus dirinya menjadi kepompong emas."`
 {INTERACTION_RULES}
-6. Gaya Bahasa & Pedagogi Anak SD:
-   - Gunakan gaya bahasa antusias, penuh rasa ingin tahu, dan interaktif ("Wah, tahukah kamu? 🔍", "Ayo coba amati! 👀").
-   - Judul di setiap slide harus menarik dan beri emoji yang relevan.
-   - Pada slide bertipe "content", buat poin-poin yang mudah dipahami anak dengan analogi sederhana dan konkret dari kehidupan sehari-hari mereka.
+6. Struktur Pedagogi 4A (Wajib Diikuti untuk Pembelajaran SD Interaktif):
+   - **Apersepsi (Opening)**: Mulai dengan menghubungkan materi ke kehidupan nyata siswa yang memicu rasa penasaran ("Pernahkah kalian melihat...?").
+   - **Aktivitas Eksplorasi (Visual & Content)**: Gambar 3D menarik dan penjelasan konsep bertahap dengan analogi ramah anak.
+   - **Aksi Interaktif (Interactive)**: Slide interaktif (kuis/sorting/drag-drop/matching) yang seru untuk disentuh siswa di layar TV IFP kelas.
+   - **Apresiasi & Refleksi (Closing)**: Kesimpulan menyenangkan dan pujian antusias untuk seluruh siswa di kelas.
    - Variasikan alur: Opening → Content → Visual → Interactive → Content → Visual → Interactive → Closing.
+   - PENTING untuk efisiensi: Batasi teks per slide agar padat dan fokus (maksimal 2-3 kalimat atau 3 poin per slide). Jangan menghasilkan teks yang bertele-tele agar tidak terpotong.
 
 PENTING:
 - Field `content` HARUS bertipe STRING (teks tunggal), DILARANG menghasilkan list/array untuk content. Jika ada poin-poin, gabungkan menjadi satu string dengan pemisah baris baru (\n).

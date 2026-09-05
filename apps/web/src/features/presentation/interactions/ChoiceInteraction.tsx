@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { soundFx } from "@/lib/soundFx";
 import type { ChoiceInteraction as ChoiceInteractionType } from "../types";
 
 export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteractionType }) {
@@ -6,6 +7,15 @@ export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteract
 
   const isAnswered = selected !== null;
   const isCorrect = selected === interaction.correct_answer;
+
+  const handleSelect = (optionId: string) => {
+    setSelected(optionId);
+    if (optionId === interaction.correct_answer) {
+      soundFx.playCorrect();
+    } else {
+      soundFx.playIncorrect();
+    }
+  };
 
   return (
     <div className="flex w-full max-w-2xl flex-col items-center gap-6">
@@ -31,7 +41,7 @@ export function ChoiceInteraction({ interaction }: { interaction: ChoiceInteract
             <button
               key={option.id}
               disabled={isAnswered}
-              onClick={() => setSelected(option.id)}
+              onClick={() => handleSelect(option.id)}
               className={`flex items-center justify-between rounded-xl px-6 py-4 text-left text-lg font-medium transition-all active:scale-[0.99] cursor-pointer disabled:cursor-default ${btnClass}`}
             >
               <span>{option.label}</span>
