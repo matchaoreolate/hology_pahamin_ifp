@@ -62,6 +62,7 @@ class SupabaseStorageProvider(BaseStorageProvider):
             logger.warning("Supabase credentials not configured, returning placeholder URL")
             return f"https://placehold.co/960x540?text={filename}"
 
+        import base64
         import httpx
 
         unique_name = f"{uuid.uuid4().hex}_{filename}"
@@ -71,11 +72,19 @@ class SupabaseStorageProvider(BaseStorageProvider):
             "apikey": self.supabase_key,
             "Content-Type": content_type,
         }
-        async with httpx.AsyncClient() as client:
-            res = await client.post(upload_url, content=file_bytes, headers=headers)
-            res.raise_for_status()
-
-        return f"{self.supabase_url}/storage/v1/object/public/{bucket}/{unique_name}"
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(upload_url, content=file_bytes, headers=headers)
+                res.raise_for_status()
+            return f"{self.supabase_url}/storage/v1/object/public/{bucket}/{unique_name}"
+        except Exception as err:
+            logger.warning(
+                "Supabase upload failed, falling back to embedded data-uri image",
+                error=str(err),
+            )
+            # Fallback: embed as valid Base64 data-uri so the image renders reliably in FE
+            b64_str = base64.b64encode(file_bytes).decode("utf-8")
+            return f"data:{content_type};base64,{b64_str}"
 
     async def delete_file(self, file_path: str, bucket: str = "presentation-assets") -> bool:
         # Supabase delete not required for current use-case — implemented when needed
