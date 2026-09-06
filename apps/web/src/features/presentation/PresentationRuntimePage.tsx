@@ -9,6 +9,13 @@ import { PresentationRuntime } from "./components/PresentationRuntime";
 import { mockPresentation } from "./mock";
 import type { PresentationArtifact } from "./types";
 
+// Session-lifetime cache so re-entering the runtime (e.g. exiting fullscreen and
+// clicking "Mulai Presentasi" again) doesn't re-hit the public endpoint for a
+// project that's already been loaded once. Kept separate from the editor pages'
+// cache in lib/api/outputs.ts since this hits a different (public, unauthenticated)
+// endpoint and has its own mock-fallback behavior.
+const runtimeCache = new Map<string, PresentationArtifact>();
+
 export function PresentationRuntimePage() {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
@@ -21,13 +28,28 @@ export function PresentationRuntimePage() {
       return;
     }
 
+    const cached = runtimeCache.get(projectId);
+    if (cached) {
+      setArtifact(cached);
+      setError(null);
+    } else {
+      setArtifact(null);
+      setError(null);
+    }
+
     let cancelled = false;
     getPublicPresentation(projectId)
       .then((data) => {
-        if (!cancelled) setArtifact(data);
+        if (cancelled) return;
+        runtimeCache.set(projectId, data);
+        setArtifact(data);
+        setError(null);
       })
       .catch((err: ApiError) => {
         if (cancelled) return;
+        // Already showing a cached artifact — a failed background refresh shouldn't
+        // replace working content with the mock fallback.
+        if (cached) return;
         // Fall back to the mock so the runtime stays usable for local/dev routes
         // that don't correspond to a real generated project.
         console.warn("Gagal memuat presentasi publik, menampilkan data contoh:", err.detail);

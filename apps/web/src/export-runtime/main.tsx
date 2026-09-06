@@ -7,7 +7,7 @@ import type { PresentationArtifact } from "@/features/presentation/types";
 import "@/index.css";
 
 function readEmbeddedArtifact(): PresentationArtifact | null {
-  const node = document.getElementById("pahamin-artifact-data");
+  const node = document.getElementById("kelasin-artifact-data");
   if (!node?.textContent) return null;
   try {
     const parsed = JSON.parse(node.textContent) as PresentationArtifact | null;

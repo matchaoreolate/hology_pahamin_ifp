@@ -3,7 +3,7 @@ import type { PresentationArtifact } from "@/features/presentation/types";
 import { embedArtifactAssets } from "./asset-embedder";
 
 const TEMPLATE_URL = "/export/export-runtime.html";
-const DATA_SCRIPT_TAG = /(<script id="pahamin-artifact-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
+const DATA_SCRIPT_TAG = /(<script id="kelasin-artifact-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
 
 function slugify(value: string): string {
   return (
@@ -36,7 +36,11 @@ export async function exportPresentationAsHtml(
 ): Promise<ExportHtmlResult> {
   const [{ artifact: embedded, warnings }, templateRes] = await Promise.all([
     embedArtifactAssets(artifact),
-    fetch(TEMPLATE_URL),
+    // `no-store` sidesteps a browser/CDN quirk where a conditional revalidation can
+    // surface a raw 304 (no body) to fetch() instead of being transparently resolved
+    // to the cached 200 — this static template is small, so always fetching it fresh
+    // is cheap and avoids that ambiguity entirely.
+    fetch(TEMPLATE_URL, { cache: "no-store" }),
   ]);
 
   if (!templateRes.ok) {

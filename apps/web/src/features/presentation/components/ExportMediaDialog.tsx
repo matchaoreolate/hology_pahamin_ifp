@@ -73,7 +73,8 @@ export function ExportMediaDialog({
         await exportPresentationAsPdf(artifact);
       }
       setStatus("success");
-    } catch {
+    } catch (err) {
+      console.error("Gagal menyiapkan media untuk diunduh:", err);
       setStatus("error");
     }
   }
