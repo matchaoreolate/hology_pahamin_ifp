@@ -10,7 +10,7 @@ import { getLkpd, useOutputContent } from "@/lib/api/outputs";
 
 export function LkpdEditorPage() {
   const { projectId } = useParams();
-  const { content: lkpd, waitingForGeneration, error } = useOutputContent(projectId, getLkpd);
+  const { content: lkpd, waitingForGeneration, error } = useOutputContent(projectId, "lkpd", getLkpd);
 
   if (error) {
     return (

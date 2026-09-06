@@ -18,7 +18,11 @@ export function PresentationEditorPage() {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
-  const { content: artifact, waitingForGeneration, error } = useOutputContent(projectId, getPresentation);
+  const { content: artifact, waitingForGeneration, error } = useOutputContent(
+    projectId,
+    "presentation",
+    getPresentation,
+  );
 
   if (error) {
     return (

@@ -80,38 +80,62 @@ export interface UseOutputContentResult<T> {
   error: ApiError | null;
 }
 
+export type OutputKind = "presentation" | "lkpd" | "ebook";
+
+/**
+ * In-memory, session-lifetime cache so switching between a project's already-opened
+ * outputs (via OutputSwitcher) doesn't re-show a loading state every time. Deliberately
+ * a plain Map rather than a data-fetching library — see the same call in polling.ts.
+ */
+const outputCache = new Map<string, unknown>();
+
 /**
  * Fetches a generated output and, if it's still being generated (425 Too Early),
  * waits for it: polls the project's overall status and re-fetches once it resolves.
  * Shared by the presentation/LKPD/e-book editor pages so "still generating" never
  * has to be guessed at or covered up with mock data.
+ *
+ * Stale-while-revalidate: if this output was already fetched this session, it renders
+ * immediately from cache while a fresh copy is fetched silently in the background —
+ * switching tabs never re-shows the loading state for content you've already opened.
  */
 export function useOutputContent<T>(
   projectId: string | undefined,
+  outputType: OutputKind,
   fetcher: (projectId: string) => Promise<T>,
 ): UseOutputContentResult<T> {
-  const [content, setContent] = useState<T | null>(null);
+  const cacheKey = projectId ? `${outputType}:${projectId}` : undefined;
+  const cached = cacheKey ? (outputCache.get(cacheKey) as T | undefined) : undefined;
+
+  const [content, setContent] = useState<T | null>(cached ?? null);
   const [waitingForGeneration, setWaitingForGeneration] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !cacheKey) return;
     let cancelled = false;
     let cancelPoll: (() => void) | null = null;
-    setContent(null);
+
+    const cachedNow = outputCache.get(cacheKey) as T | undefined;
+    setContent(cachedNow ?? null);
     setWaitingForGeneration(false);
     setError(null);
 
     function load() {
       fetcher(projectId!)
         .then((data) => {
-          if (!cancelled) setContent(data);
+          if (cancelled) return;
+          outputCache.set(cacheKey!, data);
+          setContent(data);
         })
         .catch((err: ApiError) => {
           if (cancelled) return;
 
           if (err.status === 425) {
-            setWaitingForGeneration(true);
+            // Nothing cached yet, so this really is "still generating" — show the wait
+            // state. If we already have cached content, a 425 here would be unexpected
+            // (content was already generated once) so just leave the cached view alone.
+            if (!cachedNow) setWaitingForGeneration(true);
             const { promise, cancel } = pollProjectGeneration(projectId!);
             cancelPoll = cancel;
             promise
@@ -136,7 +160,8 @@ export function useOutputContent<T>(
             return;
           }
 
-          setError(err);
+          // A failed background revalidation shouldn't blow away a working cached view.
+          if (!cachedNow) setError(err);
         });
     }
 
@@ -147,7 +172,7 @@ export function useOutputContent<T>(
       cancelPoll?.();
     };
     // `fetcher` is expected to be a stable module-level function (getPresentation/getLkpd/getEbook).
-  }, [projectId]);
+  }, [projectId, cacheKey]);
 
   return { content, waitingForGeneration, error };
 }

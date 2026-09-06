@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export function EbookEditorPage() {
   const { projectId } = useParams();
-  const { content: ebook, waitingForGeneration, error } = useOutputContent(projectId, getEbook);
+  const { content: ebook, waitingForGeneration, error } = useOutputContent(projectId, "ebook", getEbook);
   const [activeSection, setActiveSection] = useState(0);
 
   if (error) {
