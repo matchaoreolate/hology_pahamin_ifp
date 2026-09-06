@@ -1,5 +1,5 @@
 /**
- * Central Axios instance for the PahamIn FastAPI backend.
+ * Central Axios instance for the KelasIn FastAPI backend.
  * Base URL, auth header attachment, and error normalisation live here —
  * domain modules (auth.ts, contexts.ts, ...) just call `apiClient`.
  */

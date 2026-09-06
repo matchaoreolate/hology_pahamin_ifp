@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* PahamIn brand palette (same colors as the landing page) */
+  /* KelasIn brand palette (same colors as the landing page) */
   --background: #ffffff;
   --foreground: #001456;
   --card: #ffffff;
@@ -161,10 +161,10 @@
 /* Indeterminate progress sweep — communicates active work without implying a % complete. */
 @keyframes indeterminate-sweep {
   0% {
-    transform: translateX(-60%);
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateX(220%);
+    transform: translateX(300%);
   }
 }
 

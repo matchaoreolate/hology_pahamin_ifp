@@ -70,7 +70,7 @@ const steps = [
     iconBg: "bg-[#90d792]/20",
     iconColor: "text-[#1e7a24]",
     title: "2 - Generate dengan AI",
-    description: "PahamIn menyusun materi dan aktivitas berdasarkan kebutuhan kelas.",
+    description: "KelasIn menyusun materi dan aktivitas berdasarkan kebutuhan kelas.",
   },
   {
     icon: MonitorPlay,
@@ -104,12 +104,8 @@ export function LandingPage() {
 
         {/* Desktop nav: floating pill */}
         <header className="fixed top-6 left-1/2 z-20 hidden w-3xl max-w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-between gap-12 rounded-full border border-[#c6c5d2]/40 bg-white/60 px-6 py-2 shadow-lg backdrop-blur-md sm:flex">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-2xl font-extrabold text-[#001456]"
-          >
-            <Sparkles size={18} className="text-[#001456]" />
-            PahamIn
+          <Link to="/">
+            <img src="/horizontal_logo.png" alt="KelasIn" className="h-8" />
           </Link>
           <nav className="flex items-center gap-6">
             <a
@@ -213,7 +209,7 @@ export function LandingPage() {
                 </div>
               </div>
               <p className="absolute bottom-2 right-1/2 text-center text-[7px] font-bold tracking-[1.2px] text-[#666] uppercase sm:pt-2 sm:text-xs">
-                PahamIn
+                KelasIn
               </p>
             </motion.div>
 
@@ -234,7 +230,7 @@ export function LandingPage() {
               </h2>
               <p className="text-lg leading-relaxed text-[#454650]">
                 Membuat media pembelajaran yang menarik membutuhkan waktu. Padahal, guru punya banyak hal lain yang harus disiapkan.
-                <br /> <strong> PahamIn </strong> membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
+                <br /> <strong> KelasIn </strong> membantu guru mengubah ide pembelajaran menjadi media yang siap digunakan di kelas.
               </p>
             </div>
             <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-40 sm:p-12">
@@ -411,10 +407,8 @@ export function LandingPage() {
             variants={sectionReveal}
             className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-10"
           >
-            <span className="text-2xl font-bold text-[#001456]">
-              PahamIn AI
-            </span>
-            <span className="text-sm text-[#454650]">© 2026 PahamIn AI.</span>
+            <img src="/horizontal_logo.png" alt="KelasIn" className="h-9" />
+            <span className="text-sm text-[#454650]">© 2026 KelasIn AI.</span>
             <div className="flex gap-6">
               <span className="text-sm font-bold tracking-wide text-[#454650] opacity-80">
                 Bantuan

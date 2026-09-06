@@ -42,8 +42,8 @@ export function AppHeader({ variant = "app" }: AppHeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm">
       <div className="flex items-center gap-6">
-        <Link to="/" className="font-sans text-2xl font-bold tracking-tight text-foreground">
-          PahamIn
+        <Link to="/">
+          <img src="/horizontal_logo.png" alt="KelasIn" className="h-8" />
         </Link>
         {variant === "landing" && (
           <nav className="flex items-center gap-6 font-mono text-xs text-muted-foreground">

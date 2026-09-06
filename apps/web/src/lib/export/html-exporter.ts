@@ -29,7 +29,7 @@ export interface ExportHtmlResult {
  * Builds a single self-contained .html file from the given presentation
  * artifact (runtime + styles + assets all inlined) and triggers a browser
  * download. The file can be opened directly from disk, with no network
- * access and no PahamIn backend required.
+ * access and no KelasIn backend required.
  */
 export async function exportPresentationAsHtml(
   artifact: PresentationArtifact,
@@ -55,7 +55,7 @@ export async function exportPresentationAsHtml(
   try {
     const link = document.createElement("a");
     link.href = url;
-    link.download = `pahamin-${slugify(embedded.meta.title)}.html`;
+    link.download = `kelasin-${slugify(embedded.meta.title)}.html`;
     document.body.appendChild(link);
     link.click();
     link.remove();

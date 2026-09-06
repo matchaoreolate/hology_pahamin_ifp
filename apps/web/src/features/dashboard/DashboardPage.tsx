@@ -151,7 +151,7 @@ export function DashboardPage() {
     intro.setOptions({
       steps: [
         {
-          title: "Selamat Datang di PahamIn!",
+          title: "Selamat Datang di KelasIn!",
           intro: "Ini adalah Pusat Materi Anda — tempat mengelola semua media pembelajaran yang sudah dibuat.",
         },
         {
@@ -384,7 +384,7 @@ export function DashboardPage() {
         <AlertDialogContent>
           <AlertDialogTitle>Belum tersedia di perangkat mobile</AlertDialogTitle>
           <AlertDialogDescription>
-            Mengedit materi memerlukan layar yang lebih besar. Silakan buka PahamIn di laptop atau
+            Mengedit materi memerlukan layar yang lebih besar. Silakan buka KelasIn di laptop atau
             komputer untuk melanjutkan.
           </AlertDialogDescription>
           <AlertDialogFooter>

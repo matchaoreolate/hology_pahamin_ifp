@@ -37,7 +37,7 @@ function buildLoadingDescription(topik: string, mataPelajaran: string, faseKelas
   if (mataPelajaran) parts.push(`untuk ${mataPelajaran}`);
   if (faseKelasLabel) parts.push(`pada ${faseKelasLabel}`);
 
-  return `PahamIn sedang menyusun ${parts.join(" ")}.`;
+  return `KelasIn sedang menyusun ${parts.join(" ")}.`;
 }
 
 export function GenerationLoadingState({

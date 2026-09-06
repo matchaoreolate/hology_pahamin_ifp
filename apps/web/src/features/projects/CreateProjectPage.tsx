@@ -179,7 +179,7 @@ export function CreateProjectPage() {
       <main className="mx-auto flex max-w-[896px] flex-col gap-8 px-6 py-8">
         <div className="flex flex-col gap-2">
           {/* <p className="font-mono text-[11px] text-muted-foreground">
-            PahamIn AI / <span className="text-foreground">Buat Materi Baru</span>
+            KelasIn AI / <span className="text-foreground">Buat Materi Baru</span>
           </p> */}
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Buat Materi Baru

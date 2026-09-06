@@ -1,5 +1,5 @@
 # =============================================
-# PahamIn Web — Dockerfile
+# KelasIn Web — Dockerfile
 # Multi-stage: pnpm build (monorepo-aware) + nginx static serve
 # =============================================
 

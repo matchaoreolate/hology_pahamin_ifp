@@ -8,12 +8,8 @@ export function MobileNav() {
   return (
     <div className="fixed inset-x-0 top-0 z-20 sm:hidden">
       <div className="flex items-center justify-between bg-white/70 backdrop-blur-md px-4 py-3">
-        <Link
-          to="/"
-          onClick={() => setOpen(false)}
-          className="text-xl font-extrabold text-[#001456]"
-        >
-          PahamIn
+        <Link to="/" onClick={() => setOpen(false)}>
+          <img src="/horizontal_logo.png" alt="KelasIn" className="h-7" />
         </Link>
         <button
           onClick={() => setOpen((prev) => !prev)}

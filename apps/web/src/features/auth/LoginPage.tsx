@@ -65,14 +65,14 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-between bg-background pt-16">
+    <div className="flex min-h-screen flex-col justify-between bg-background">
       {/* <AppHeader variant="landing" /> */}
 
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="flex w-full max-w-[448px] flex-col gap-8">
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-4">
+            <img src="/vertical_logo.png" alt="KelasIn" className="h-24" />
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">Selamat datang Guru!</h1>
-            {/* <p className="text-sm text-muted-foreground">Teaching Assistant AI</p> */}
           </div>
 
           <Tabs

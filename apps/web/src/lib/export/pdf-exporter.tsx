@@ -85,5 +85,5 @@ export async function exportPresentationAsPdf(artifact: PresentationArtifact): P
     stage.remove();
   }
 
-  doc.save(`pahamin-${artifact.meta.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`);
+  doc.save(`kelasin-${artifact.meta.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`);
 }

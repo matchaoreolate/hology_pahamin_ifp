@@ -1,85 +1,24 @@
 import { Download, Play, Plus, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ThreeDot } from "react-loading-indicators";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EditorHeader } from "@/components/layout/EditorHeader";
 import { OutputSwitcher } from "@/components/layout/OutputSwitcher";
 import { Button } from "@/components/ui/button";
-import { getPresentation } from "@/lib/api/outputs";
-import { pollProjectGeneration } from "@/lib/api/polling";
+import { getPresentation, useOutputContent } from "@/lib/api/outputs";
 import { cn } from "@/lib/utils";
-import type { ApiError } from "@/types/api";
 
 import { ExportMediaDialog } from "./components/ExportMediaDialog";
 import { PresentationNavigation } from "./components/PresentationNavigation";
 import { SlideViewport } from "./components/SlideViewport";
-import type { PresentationArtifact } from "./types";
 
 export function PresentationEditorPage() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
-  const [artifact, setArtifact] = useState<PresentationArtifact | null>(null);
-  const [waitingForGeneration, setWaitingForGeneration] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
-
-  useEffect(() => {
-    if (!projectId) return;
-    let cancelled = false;
-    let cancelPoll: (() => void) | null = null;
-    setArtifact(null);
-    setWaitingForGeneration(false);
-    setError(null);
-    setCurrent(0);
-
-    function loadPresentation() {
-      getPresentation(projectId!)
-        .then((data) => {
-          if (!cancelled) setArtifact(data);
-        })
-        .catch((err: ApiError) => {
-          if (cancelled) return;
-
-          if (err.status === 425) {
-            // Output exists but generation is still running — wait for it instead
-            // of guessing; poll project status and re-fetch once it resolves.
-            setWaitingForGeneration(true);
-            const { promise, cancel } = pollProjectGeneration(projectId!);
-            cancelPoll = cancel;
-            promise
-              .then((status) => {
-                if (cancelled) return;
-                if (status.project_status === "done") {
-                  loadPresentation();
-                } else {
-                  setWaitingForGeneration(false);
-                  setError({
-                    status: null,
-                    detail: status.error_message ?? "Generate AI gagal untuk project ini",
-                    raw: status,
-                  });
-                }
-              })
-              .catch((pollErr: ApiError) => {
-                if (cancelled) return;
-                setWaitingForGeneration(false);
-                setError(pollErr);
-              });
-            return;
-          }
-
-          setError(err);
-        });
-    }
-
-    loadPresentation();
-
-    return () => {
-      cancelled = true;
-      cancelPoll?.();
-    };
-  }, [projectId]);
+  const { content: artifact, waitingForGeneration, error } = useOutputContent(projectId, getPresentation);
 
   if (error) {
     return (
@@ -105,12 +44,13 @@ export function PresentationEditorPage() {
   if (!artifact) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-secondary/40 pt-16">
-        <p className="text-sm text-muted-foreground">Memuat presentasi...</p>
+        <ThreeDot variant="brick-stack" color="#32cd32" size="medium" text="" textColor="" />
       </div>
     );
   }
 
-  const slide = artifact.slides[current];
+  const safeCurrent = Math.min(current, artifact.slides.length - 1);
+  const slide = artifact.slides[safeCurrent];
 
   return (
     <div className="min-h-screen bg-secondary/40 pt-16">
@@ -154,7 +94,7 @@ export function PresentationEditorPage() {
                 onClick={() => setCurrent(index)}
                 className={cn(
                   "flex items-center gap-3 rounded-md border p-3 text-left transition-colors",
-                  index === current
+                  index === safeCurrent
                     ? "border-2 border-primary bg-secondary/60"
                     : "border-border hover:border-primary/40",
                 )}
@@ -162,7 +102,7 @@ export function PresentationEditorPage() {
                 <span
                   className={cn(
                     "flex size-6 shrink-0 items-center justify-center rounded font-mono text-xs",
-                    index === current
+                    index === safeCurrent
                       ? "bg-primary text-primary-foreground"
                       : "border border-border text-muted-foreground",
                   )}
@@ -189,14 +129,14 @@ export function PresentationEditorPage() {
           <div className="w-full max-w-[1024px] overflow-hidden rounded-lg border border-border bg-card shadow-sm">
             <div className="flex h-10 items-center justify-between border-b border-border bg-secondary/40 px-4">
               <span className="font-mono text-xs text-muted-foreground">
-                Scene {current + 1}: {slide.title}
+                Scene {safeCurrent + 1}: {slide.title}
               </span>
             </div>
             <SlideViewport slide={slide} className="min-h-[500px] p-6" />
           </div>
 
           <PresentationNavigation
-            current={current}
+            current={safeCurrent}
             total={artifact.slides.length}
             onPrev={() => setCurrent((c) => Math.max(0, c - 1))}
             onNext={() => setCurrent((c) => Math.min(artifact.slides.length - 1, c + 1))}
