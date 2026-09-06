@@ -157,21 +157,21 @@ export function LandingPage() {
             >
               <motion.h1
                 variants={heroTextItem}
-                className="text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl"
+                className="max-w-5xl text-5xl leading-tight font-extrabold tracking-tight text-[#001456] md:text-6xl"
               >
-                Platform untuk{" "}
+                Buat Pembelajaran SD{" "}
                 <span className="relative inline-block">
                   <span
                     aria-hidden="true"
                     className="absolute -inset-x-2 top-8 bottom-2 -z-10 bg-[#fdd34d]"
                   />
-                  Kelas Interaktif
+                  Lebih Interaktif
                 </span>
               </motion.h1>
               <motion.p variants={heroTextItem} className="text-lg text-[#454650]">
                 Buat media pembelajaran dengan AI dan gunakan langsung di TV interaktif kelas.
                 <br />
-                Bantu guru mengajar lebih interaktif, siswa lebih terlibat.
+                Lebih mudah disiapkan, lebih seru digunakan bersama siswa.
               </motion.p>
               <motion.div variants={heroTextItem} className="flex gap-4 pt-4">
                 <Link

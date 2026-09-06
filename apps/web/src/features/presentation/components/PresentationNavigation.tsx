@@ -56,7 +56,7 @@ export function PresentationNavigation({
         <ChevronLeft size={14} />
       </button>
       <span className="font-mono text-xs text-muted-foreground">
-        Scene {current + 1} dari {total}
+        Slide {current + 1} dari {total}
       </span>
       <button
         onClick={onNext}

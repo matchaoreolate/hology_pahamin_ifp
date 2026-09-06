@@ -87,9 +87,9 @@ export function PresentationEditorPage() {
 
       <div className="flex">
         <aside className="fixed top-16 bottom-0 left-0 flex w-64 flex-col border-r border-border bg-card">
-          <div className="border-b border-border px-4 py-4">
+          <div className="border-b border-border px-4 py-3">
             <h3 className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
-              Daftar Scene
+              Daftar Slide
             </h3>
           </div>
           <div className="flex flex-1 flex-col gap-2 overflow-auto p-4">
@@ -125,7 +125,7 @@ export function PresentationEditorPage() {
               className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/50 py-2 font-mono text-xs text-muted-foreground opacity-60"
             >
               <Plus size={13} />
-              Tambah Scene (Segera Hadir)
+              Tambah Slide (Segera Hadir)
             </button>
           </div>
         </aside>
@@ -134,7 +134,7 @@ export function PresentationEditorPage() {
           <div className="w-full max-w-[1024px] overflow-hidden rounded-lg border border-border bg-card shadow-sm">
             <div className="flex h-10 items-center justify-between border-b border-border bg-secondary/40 px-4">
               <span className="font-mono text-xs text-muted-foreground">
-                Scene {safeCurrent + 1}: {slide.title}
+                Slide {safeCurrent + 1}: {slide.title}
               </span>
             </div>
             <SlideViewport slide={slide} className="min-h-[500px] p-6" />

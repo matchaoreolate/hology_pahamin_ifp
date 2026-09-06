@@ -55,7 +55,7 @@ export function LkpdEditorPage() {
               onClick={() => projectId && downloadLkpdPdf(projectId)}
             >
               <Download size={12} />
-              Download PDF
+              Unduh PDF
             </Button>
           </>
         }
