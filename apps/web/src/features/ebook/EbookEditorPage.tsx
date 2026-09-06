@@ -1,3 +1,4 @@
+import { ThreeDot } from "react-loading-indicators";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -31,7 +32,8 @@ export function EbookEditorPage() {
 
   if (!ebook) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background pt-16">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background pt-16">
+        <ThreeDot variant="brick-stack" color="#001456" size="medium" text="" textColor="" />
         <p className="text-sm text-muted-foreground">Memuat e-book...</p>
       </div>
     );

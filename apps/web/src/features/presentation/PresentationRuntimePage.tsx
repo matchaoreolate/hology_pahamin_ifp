@@ -42,7 +42,8 @@ export function PresentationRuntimePage() {
 
   if (!artifact) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-background">
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-3 bg-background">
+        <ThreeDot variant="brick-stack" color="#001456" size="medium" text="" textColor="" />
         <p className="text-sm text-muted-foreground">Memuat presentasi...</p>
       </div>
     );
