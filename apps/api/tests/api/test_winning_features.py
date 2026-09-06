@@ -52,6 +52,51 @@ def test_lkpd_pdf_service_generates_valid_pdf():
     assert len(pdf_bytes) > 500
 
 
+def test_lkpd_pdf_service_generates_valid_pdf_v01():
+    """Verify LKPD PDF generator handles v0.1 contract (meta + sections with activities)."""
+    sample_v01 = {
+        "version": "0.1",
+        "meta": {
+            "title": "Lembar Kerja Peserta Didik: Ekosistem Sawah",
+            "mata_pelajaran": "IPAS",
+            "topik": "Ekosistem Sawah",
+            "fase": "Fase B",
+            "alokasi_waktu_menit": 35,
+        },
+        "sections": [
+            {
+                "title": "Aktivitas 1: Mengamati Komponen Biotik dan Abiotik",
+                "instruction": "Amati lingkungan sekitar sawah dan jawab pertanyaan berikut.",
+                "activities": [
+                    {
+                        "type": "instruction",
+                        "content": "Perhatikan komponen hidup (padi, burung, katak) dan tak hidup (tanah, air, matahari).",
+                    },
+                    {
+                        "type": "question",
+                        "question": "Sebutkan 3 komponen biotik yang ada pada ekosistem sawah!",
+                        "answer_space": "lined",
+                    },
+                    {
+                        "type": "question",
+                        "question": "Gambarkan rantai makanan sederhana yang terjadi di sawah pada kotak di bawah:",
+                        "answer_space": "boxed",
+                    },
+                    {
+                        "type": "question",
+                        "question": "Siapakah produsen utama pada ekosistem sawah?",
+                        "answer_space": "short",
+                    },
+                ],
+            }
+        ],
+    }
+    pdf_bytes = LKPD_PDFService.generate_pdf(sample_v01)
+    assert isinstance(pdf_bytes, bytes)
+    assert pdf_bytes.startswith(b"%PDF")
+    assert len(pdf_bytes) > 1000
+
+
 def test_tarl_differentiation_schema_validation():
     """Verify TaRL 3-tier structure validates against Pydantic schema."""
     data = {
