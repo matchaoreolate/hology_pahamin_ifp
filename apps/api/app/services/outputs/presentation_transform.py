@@ -6,6 +6,7 @@ inspired by Metabot AI transform pattern (Slide 17, 25, 32).
 Contract guarantees:
 - Scoped slide edit runs fast (~1-2s) and preserves assets & audio on other slides.
 - Returns full snapshot PresentationArtifact so frontend state remains consistent.
+- Highly resilient to Gemini formatting variations and schema validation edge-cases.
 """
 import copy
 import json
@@ -24,6 +25,8 @@ from app.services.prompts.presentation_templates import INTERACTION_RULES
 
 logger = get_logger(__name__)
 
+VALID_SLIDE_TYPES = {"opening", "content", "visual", "interactive", "closing"}
+
 
 class PresentationTransformService:
     @staticmethod
@@ -39,113 +42,142 @@ class PresentationTransformService:
         Executes an AI transform on a presentation output.
         Returns the updated full PresentationArtifact snapshot.
         """
-        project = await ProjectCRUDService.find_or_404(db, project_id, user_id)
-        output = await OutputRepository.get_done_output(db, project.id, "presentation")
-        if not output or not output.content:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Presentasi belum tersedia untuk ditransformasikan",
-            )
+        try:
+            project = await ProjectCRUDService.find_or_404(db, project_id, user_id)
+            output = await OutputRepository.get_done_output(db, project.id, "presentation")
+            if not output or not output.content:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Presentasi belum tersedia untuk ditransformasikan",
+                )
 
-        artifact = copy.deepcopy(output.content)
-        slides: list[dict[str, Any]] = artifact.get("slides", [])
-        if not slides:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Presentasi tidak memiliki slide yang valid",
-            )
-
-        # Normalize slide_index within bounds
-        safe_index = max(0, min(slide_index, len(slides) - 1))
-        meta = artifact.get("meta", {})
-        topik = meta.get("topik", "Materi Pembelajaran")
-        mata_pelajaran = meta.get("mata_pelajaran", "Tematik")
-        fase = meta.get("fase", "Fase A/B/C")
-
-        # Intent detection if mode == "auto"
-        lowered_prompt = prompt.lower().strip()
-        add_keywords = ["tambah slide", "tambahkan slide", "buatkan slide baru", "sisipkan slide", "tambah kuis baru"]
-        delete_keywords = ["hapus slide", "buang slide", "delete slide"]
-
-        resolved_mode = mode
-        if resolved_mode == "auto":
-            if any(kw in lowered_prompt for kw in add_keywords):
-                resolved_mode = "add_slide"
-            elif any(kw in lowered_prompt for kw in delete_keywords):
-                resolved_mode = "delete_slide"
-            else:
-                resolved_mode = "slide"
-
-        active_slide_index = safe_index
-        action = "modify"
-        message = ""
-
-        if resolved_mode == "delete_slide":
-            if len(slides) <= 1:
+            artifact = copy.deepcopy(output.content)
+            slides: list[dict[str, Any]] = artifact.get("slides", [])
+            if not slides:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Presentasi harus memiliki minimal 1 slide, tidak dapat menghapus slide terakhir.",
+                    detail="Presentasi tidak memiliki slide yang valid",
                 )
-            slides.pop(safe_index)
-            # Re-index
-            for idx, s in enumerate(slides):
-                s["order"] = idx + 1
-            artifact["meta"]["total_slides"] = len(slides)
-            active_slide_index = max(0, min(safe_index, len(slides) - 1))
-            action = "delete"
-            message = f"Slide {safe_index + 1} berhasil dihapus."
 
-        elif resolved_mode == "add_slide":
-            new_slide = await PresentationTransformService._generate_new_slide(
-                prompt=prompt,
-                reference_slide=slides[safe_index],
-                topik=topik,
-                mata_pelajaran=mata_pelajaran,
-                fase=fase,
-                new_order=safe_index + 2,
-            )
-            slides.insert(safe_index + 1, new_slide)
-            # Re-index
-            for idx, s in enumerate(slides):
-                s["order"] = idx + 1
-            artifact["meta"]["total_slides"] = len(slides)
-            active_slide_index = safe_index + 1
-            action = "append"
-            message = f"Slide baru berhasil ditambahkan pada urutan {active_slide_index + 1}."
+            # Safely normalize metadata
+            meta = artifact.get("meta")
+            if not isinstance(meta, dict):
+                meta = {}
+                artifact["meta"] = meta
 
-        else:
-            # Scoped slide modification (Slide 32 - backend authority, single target LLM call)
-            target_slide = slides[safe_index]
-            updated_slide = await PresentationTransformService._transform_single_slide(
-                prompt=prompt,
-                current_slide=target_slide,
-                topik=topik,
-                mata_pelajaran=mata_pelajaran,
-                fase=fase,
-            )
-            slides[safe_index] = updated_slide
+            topik = meta.get("topik") or "Materi Pembelajaran"
+            mata_pelajaran = meta.get("mata_pelajaran") or "Tematik"
+            fase = meta.get("fase") or "Fase A/B/C"
+
+            # Normalize slide_index within bounds
+            safe_index = max(0, min(slide_index, len(slides) - 1))
+
+            # Intent detection if mode == "auto"
+            lowered_prompt = prompt.lower().strip()
+            add_keywords = ["tambah slide", "tambahkan slide", "buatkan slide baru", "sisipkan slide", "tambah kuis baru"]
+            delete_keywords = ["hapus slide", "buang slide", "delete slide"]
+
+            resolved_mode = mode
+            if resolved_mode == "auto":
+                if any(kw in lowered_prompt for kw in add_keywords):
+                    resolved_mode = "add_slide"
+                elif any(kw in lowered_prompt for kw in delete_keywords):
+                    resolved_mode = "delete_slide"
+                else:
+                    resolved_mode = "slide"
+
             active_slide_index = safe_index
             action = "modify"
-            message = f"Slide {safe_index + 1} ('{updated_slide.get('title', '')}') berhasil diperbarui."
+            message = ""
 
-        # Save to database
-        output.content = artifact
-        await db.flush()
+            if resolved_mode == "delete_slide":
+                if len(slides) <= 1:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Presentasi harus memiliki minimal 1 slide, tidak dapat menghapus slide terakhir.",
+                    )
+                slides.pop(safe_index)
+                # Re-index
+                for idx, s in enumerate(slides):
+                    s["order"] = idx + 1
+                artifact["meta"]["total_slides"] = len(slides)
+                active_slide_index = max(0, min(safe_index, len(slides) - 1))
+                action = "delete"
+                message = f"Slide {safe_index + 1} berhasil dihapus."
 
-        logger.info(
-            "Presentation transformed successfully",
-            project_id=str(project.id),
-            action=action,
-            active_slide_index=active_slide_index,
-        )
+            elif resolved_mode == "add_slide":
+                new_slide = await PresentationTransformService._generate_new_slide(
+                    prompt=prompt,
+                    reference_slide=slides[safe_index],
+                    topik=topik,
+                    mata_pelajaran=mata_pelajaran,
+                    fase=fase,
+                    new_order=safe_index + 2,
+                )
+                slides.insert(safe_index + 1, new_slide)
+                # Re-index
+                for idx, s in enumerate(slides):
+                    s["order"] = idx + 1
+                artifact["meta"]["total_slides"] = len(slides)
+                active_slide_index = safe_index + 1
+                action = "append"
+                message = f"Slide baru berhasil ditambahkan pada urutan {active_slide_index + 1}."
 
-        return {
-            "project_id": str(project.id),
-            "action": action,
-            "message": message,
-            "content": output.content,
-            "active_slide_index": active_slide_index,
-        }
+            else:
+                # Scoped slide modification (Slide 32 - backend authority, single target LLM call)
+                target_slide = slides[safe_index]
+                updated_slide = await PresentationTransformService._transform_single_slide(
+                    prompt=prompt,
+                    current_slide=target_slide,
+                    topik=topik,
+                    mata_pelajaran=mata_pelajaran,
+                    fase=fase,
+                )
+                slides[safe_index] = updated_slide
+                active_slide_index = safe_index
+                action = "modify"
+                message = f"Slide {safe_index + 1} ('{updated_slide.get('title', '')}') berhasil diperbarui."
+
+            # Save to database
+            output.content = artifact
+            await db.flush()
+
+            logger.info(
+                "Presentation transformed successfully",
+                project_id=str(project.id),
+                action=action,
+                active_slide_index=active_slide_index,
+            )
+
+            return {
+                "project_id": str(project.id),
+                "action": action,
+                "message": message,
+                "content": output.content,
+                "active_slide_index": active_slide_index,
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.exception("Presentation AI transform failed", project_id=project_id, error=str(e))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Gagal memproses transformasi AI: {str(e)}",
+            )
+
+    @staticmethod
+    def _unwrap_slide_payload(raw_result: Any) -> dict[str, Any]:
+        """Unwraps various common JSON response structures from LLM."""
+        if isinstance(raw_result, list) and len(raw_result) > 0:
+            raw_result = raw_result[0]
+        if isinstance(raw_result, dict):
+            if "slide" in raw_result and isinstance(raw_result["slide"], dict):
+                return raw_result["slide"]
+            if "slides" in raw_result and isinstance(raw_result["slides"], list) and len(raw_result["slides"]) > 0:
+                return raw_result["slides"][0]
+            return raw_result
+        return {}
 
     @staticmethod
     async def _transform_single_slide(
@@ -200,9 +232,24 @@ Format output WAJIB berupa JSON objek tunggal:
 }}
 """
         raw_result = await gemini_service.generate(gemini_prompt, context_label="transform_single_slide")
-        # Validate through Pydantic
-        validated = PresentationSlide.model_validate(raw_result)
-        dumped = validated.model_dump()
+        slide_dict = PresentationTransformService._unwrap_slide_payload(raw_result)
+
+        # Normalize type
+        if slide_dict.get("type") not in VALID_SLIDE_TYPES:
+            slide_dict["type"] = "interactive" if slide_dict.get("interaction") else "content"
+
+        slide_dict["id"] = current_slide.get("id", slide_dict.get("id", "slide-1"))
+        slide_dict["order"] = current_slide.get("order", slide_dict.get("order", 1))
+
+        # Validate through Pydantic with graceful degradation for interaction
+        try:
+            validated = PresentationSlide.model_validate(slide_dict)
+            dumped = validated.model_dump()
+        except Exception as val_err:
+            logger.warning("PresentationSlide validation failed, trying fallback", error=str(val_err))
+            slide_dict["interaction"] = None
+            validated = PresentationSlide.model_validate(slide_dict)
+            dumped = validated.model_dump()
 
         # Ensure ID and order remain stable
         dumped["id"] = current_slide.get("id", dumped["id"])
@@ -264,8 +311,23 @@ Format output WAJIB berupa JSON objek tunggal:
 }}
 """
         raw_result = await gemini_service.generate(gemini_prompt, context_label="generate_new_slide")
-        validated = PresentationSlide.model_validate(raw_result)
-        dumped = validated.model_dump()
+        slide_dict = PresentationTransformService._unwrap_slide_payload(raw_result)
+
+        if slide_dict.get("type") not in VALID_SLIDE_TYPES:
+            slide_dict["type"] = "interactive" if slide_dict.get("interaction") else "content"
+
+        slide_dict["id"] = new_id
+        slide_dict["order"] = new_order
+
+        try:
+            validated = PresentationSlide.model_validate(slide_dict)
+            dumped = validated.model_dump()
+        except Exception as val_err:
+            logger.warning("New slide validation failed, trying fallback", error=str(val_err))
+            slide_dict["interaction"] = None
+            validated = PresentationSlide.model_validate(slide_dict)
+            dumped = validated.model_dump()
+
         dumped["id"] = new_id
         dumped["order"] = new_order
         return dumped

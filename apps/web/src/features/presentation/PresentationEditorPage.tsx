@@ -126,8 +126,16 @@ export function PresentationEditorPage() {
       }
       setAiPrompt("");
       setStatusFeedback({ message: res.message, type: "success" });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Gagal mentransformasikan slide dengan AI";
+    } catch (err: unknown) {
+      let msg = "Gagal mentransformasikan slide dengan AI";
+      if (typeof err === "object" && err !== null && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        if (axiosErr.response?.data?.detail) {
+          msg = axiosErr.response.data.detail;
+        }
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       setStatusFeedback({ message: msg, type: "error" });
     } finally {
       setIsTransforming(false);
