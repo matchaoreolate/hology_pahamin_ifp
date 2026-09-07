@@ -160,7 +160,12 @@ class PresentationTransformService:
         except HTTPException:
             raise
         except Exception as e:
-            logger.exception("Presentation AI transform failed", project_id=project_id, error=str(e))
+            logger.error(
+                "Presentation AI transform failed",
+                project_id=project_id,
+                error=str(e),
+                exc_info=True,
+            )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Gagal memproses transformasi AI: {str(e)}",
