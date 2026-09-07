@@ -68,12 +68,13 @@ async def enrich_with_images(
                 slide_log.warning("Image generation returned no bytes — slide will have empty assets")
                 continue
 
-            filename = f"slide-{slide.id}-{uuid.uuid4().hex[:8]}.png"
+            filename = f"slide-{slide.id}-{uuid.uuid4().hex[:8]}.webp"
             asset_dict = await StorageService.upload_image(
                 image_bytes=image_bytes,
                 filename=filename,
                 alt=slide.title or "Ilustrasi pembelajaran",
                 display="fullscreen",  # visual slides → fullscreen display
+                content_type="image/webp",
             )
 
             slides_by_id[slide.id]["assets"].append(asset_dict)

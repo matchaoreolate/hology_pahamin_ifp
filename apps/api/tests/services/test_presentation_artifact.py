@@ -345,3 +345,25 @@ def test_presentation_slide_content_list_coerced_to_str():
     slide = PresentationSlide.model_validate(data)
     assert slide.content == "Poin 1: Persegi\nPoin 2: Lingkaran"
 
+
+def test_optimize_image_bytes_compresses_and_downscales():
+    """Verify that optimize_image_bytes converts images to WebP and downscales oversized dimensions."""
+    import io
+    from PIL import Image
+    from app.services.ai.image_generator import optimize_image_bytes
+
+    # Create oversized 1600x1200 image
+    img = Image.new("RGBA", (1600, 1200), (255, 128, 0, 200))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    raw_png = buf.getvalue()
+
+    optimized = optimize_image_bytes(raw_png, max_dimension=1280, quality=80)
+    assert len(optimized) > 0
+
+    opt_img = Image.open(io.BytesIO(optimized))
+    assert opt_img.format == "WEBP"
+    assert opt_img.size[0] == 1280
+    assert opt_img.size[1] == 960
+    assert len(optimized) < len(raw_png)
+

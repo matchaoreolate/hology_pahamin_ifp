@@ -28,9 +28,10 @@ class StorageService:
         alt: str | None = None,
         display: str = "asset",
         bucket: str = "presentation-assets",
+        content_type: str = "image/webp",
     ) -> dict[str, str]:
         """Upload image and return an Asset dict {id, type, display, url, alt}."""
-        url = await cls.get_provider().upload_file(image_bytes, filename, content_type="image/png", bucket=bucket)
+        url = await cls.get_provider().upload_file(image_bytes, filename, content_type=content_type, bucket=bucket)
         return {
             "id": str(uuid.uuid4()),
             "type": "image",
