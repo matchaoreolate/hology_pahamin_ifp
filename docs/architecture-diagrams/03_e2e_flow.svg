@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="980" height="300" fill="#ffffff"/>
+  <text x="490" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">Alur End-to-End: dari Input Guru sampai Kelas</text>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="10"  y="90" width="105" height="60" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="62" y="115" fill="#1E293B" font-weight="600">Input Guru</text>
+    <text x="62" y="132" fill="#475569" font-size="11">(Tahap 1)</text>
+
+    <rect x="130" y="90" width="120" height="60" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="190" y="115" fill="#1E293B" font-weight="600">Learning</text>
+    <text x="190" y="131" fill="#1E293B" font-weight="600">Context</text>
+
+    <rect x="265" y="90" width="120" height="60" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="325" y="115" fill="#1E293B" font-weight="600">Media</text>
+    <text x="325" y="131" fill="#1E293B" font-weight="600">Project</text>
+    <text x="325" y="145" fill="#475569" font-size="10">(Tahap 2)</text>
+
+    <rect x="400" y="90" width="95" height="60" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="447" y="125" fill="#1E293B" font-weight="600">Generate</text>
+
+    <rect x="510" y="90" width="120" height="60" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="570" y="115" fill="#1E293B" font-weight="600">AI Generation</text>
+    <text x="570" y="132" fill="#7C2D12" font-size="11">(async, Celery)</text>
+
+    <rect x="645" y="90" width="150" height="60" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>
+    <text x="720" y="112" fill="#1E293B" font-weight="600" font-size="12">Presentasi / LKPD /</text>
+    <text x="720" y="128" fill="#1E293B" font-weight="600" font-size="12">E-book (artifact)</text>
+
+    <rect x="810" y="90" width="160" height="60" rx="10" fill="#F1F5F9" stroke="#475569" stroke-width="1.5"/>
+    <text x="890" y="112" fill="#1E293B" font-weight="600" font-size="12">Validasi &amp;</text>
+    <text x="890" y="128" fill="#1E293B" font-weight="600" font-size="12">Persistensi</text>
+
+  </g>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="810" y="200" width="160" height="60" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="890" y="235" fill="#1E293B" font-weight="600">Frontend</text>
+
+    <rect x="565" y="200" width="215" height="60" rx="10" fill="#FEF9C3" stroke="#CA8A04" stroke-width="1.5"/>
+    <text x="672" y="225" fill="#1E293B" font-weight="600" font-size="12">Review / Presentasi /</text>
+    <text x="672" y="242" fill="#1E293B" font-weight="600" font-size="12">Export di Kelas</text>
+  </g>
+
+  <line x1="115" y1="120" x2="126" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="250" y1="120" x2="261" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="385" y1="120" x2="396" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="495" y1="120" x2="506" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="120" x2="641" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="795" y1="120" x2="806" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="890" y1="150" x2="890" y2="196" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="806" y1="230" x2="784" y2="230" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="490" y="285" text-anchor="middle" font-size="12" fill="#64748B" font-style="italic">Generasi konten (AI) dan rendering (frontend) adalah dua tahap yang terpisah.</text>
+</svg>

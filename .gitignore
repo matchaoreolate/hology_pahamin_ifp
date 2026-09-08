@@ -37,3 +37,7 @@ coverage/
 
 # Docker
 docker-compose.override.yml
+docs/KelasIn_Arsitektur_Teknis.docx
+
+#
+proposal/

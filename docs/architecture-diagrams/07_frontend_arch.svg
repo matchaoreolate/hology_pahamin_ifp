@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="900" height="420" fill="#ffffff"/>
+  <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">Arsitektur Frontend</text>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="340" y="55" width="220" height="50" rx="9" fill="#F1F5F9" stroke="#475569" stroke-width="1.5"/>
+    <text x="450" y="85" fill="#1E293B" font-weight="600">Backend API (FastAPI)</text>
+
+    <rect x="340" y="135" width="220" height="50" rx="9" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="450" y="157" fill="#1E293B" font-weight="600" font-size="12">API / Data Layer</text>
+    <text x="450" y="173" fill="#475569" font-size="10">Axios client + modul per domain</text>
+
+    <rect x="340" y="215" width="220" height="50" rx="9" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>
+    <text x="450" y="237" fill="#1E293B" font-weight="600" font-size="12">Learning Artifact</text>
+    <text x="450" y="253" fill="#065F46" font-size="10">Presentation / Lkpd / Ebook</text>
+  </g>
+
+  <line x1="450" y1="105" x2="450" y2="131" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="185" x2="450" y2="211" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="450" y1="265" x2="450" y2="295" stroke="#475569" stroke-width="2"/>
+  <line x1="140" y1="295" x2="760" y2="295" stroke="#475569" stroke-width="2"/>
+  <line x1="140" y1="295" x2="140" y2="315" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="295" x2="450" y2="315" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="760" y1="295" x2="760" y2="315" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g font-size="12" text-anchor="middle">
+    <rect x="30" y="320" width="220" height="55" rx="9" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="140" y="343" fill="#1E293B" font-weight="600">Presentation Renderer</text>
+    <text x="140" y="360" fill="#475569" font-size="10">SlideRenderer + Interaksi</text>
+
+    <rect x="340" y="320" width="220" height="55" rx="9" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="450" y="343" fill="#1E293B" font-weight="600">LKPD Renderer</text>
+    <text x="450" y="360" fill="#475569" font-size="10">LkpdEditorPage (A4)</text>
+
+    <rect x="650" y="320" width="220" height="55" rx="9" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="760" y="343" fill="#1E293B" font-weight="600">E-book Renderer</text>
+    <text x="760" y="360" fill="#475569" font-size="10">EbookReader (paginasi A4)</text>
+  </g>
+
+  <text x="450" y="405" text-anchor="middle" font-size="12" fill="#64748B" font-style="italic">React 19 + Vite + TypeScript + Tailwind CSS 4, komponen ala shadcn/ui di atas @base-ui/react.</text>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="900" height="480" fill="#ffffff"/>
+  <text x="450" y="26" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">Generasi Asinkron (Celery + Redis)</text>
+
+  <!-- lanes -->
+  <g font-size="12" text-anchor="middle" font-weight="600" fill="#1E293B">
+    <text x="80"  y="55">Frontend</text>
+    <text x="270" y="55">FastAPI</text>
+    <text x="460" y="55">Celery Worker</text>
+    <text x="650" y="55">AI Provider</text>
+    <text x="820" y="55">PostgreSQL</text>
+  </g>
+  <g stroke="#CBD5E1" stroke-width="1.5">
+    <line x1="80" y1="65" x2="80" y2="460"/>
+    <line x1="270" y1="65" x2="270" y2="460"/>
+    <line x1="460" y1="65" x2="460" y2="460"/>
+    <line x1="650" y1="65" x2="650" y2="460"/>
+    <line x1="820" y1="65" x2="820" y2="460"/>
+  </g>
+
+  <g font-size="11" fill="#334155">
+    <line x1="80" y1="90" x2="270" y2="90" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="175" y="83" text-anchor="middle">POST /projects/{id}/generate</text>
+
+    <line x1="270" y1="115" x2="820" y2="115" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="545" y="108" text-anchor="middle">status = "processing"</text>
+
+    <line x1="270" y1="140" x2="460" y2="140" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="365" y="133" text-anchor="middle">generate_all_outputs_task.delay()</text>
+
+    <line x1="270" y1="163" x2="80" y2="163" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="175" y="156" text-anchor="middle">200 OK (status=processing)</text>
+
+    <rect x="440" y="180" width="380" height="130" rx="8" fill="#FFFBEB" stroke="#CA8A04" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="630" y="196" text-anchor="middle" font-weight="600" fill="#854D0E">chord — 3 task paralel, independen</text>
+
+    <line x1="460" y1="215" x2="650" y2="215" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="555" y="209" text-anchor="middle" font-size="10">generate_presentation_task</text>
+
+    <line x1="460" y1="235" x2="650" y2="235" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="555" y="229" text-anchor="middle" font-size="10">generate_lkpd_task</text>
+
+    <line x1="460" y1="255" x2="650" y2="255" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="555" y="249" text-anchor="middle" font-size="10">generate_ebook_task</text>
+
+    <line x1="650" y1="280" x2="460" y2="280" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="555" y="274" text-anchor="middle" font-size="10">konten JSON (per output)</text>
+
+    <line x1="460" y1="300" x2="820" y2="300" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="640" y="294" text-anchor="middle" font-size="10">GeneratedOutput.status = done|error</text>
+
+    <line x1="460" y1="335" x2="820" y2="335" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="640" y="328" text-anchor="middle">finalize_generation_task (chord callback)</text>
+    <text x="640" y="349" text-anchor="middle" font-size="10">update_final_project_status()</text>
+
+    <rect x="30" y="370" width="700" height="55" rx="8" fill="#F1F5F9" stroke="#475569" stroke-width="1"/>
+    <text x="380" y="392" text-anchor="middle" font-size="11">loop: Frontend polling GET /projects/{id}/status (tanpa WebSocket/SSE)</text>
+    <line x1="80" y1="408" x2="270" y2="408" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="270" y1="408" x2="80" y2="408" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)" transform="translate(0,0)"/>
+
+    <line x1="80" y1="450" x2="270" y2="450" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="175" y="444" text-anchor="middle" font-size="10">GET /projects/{id}/presentation|lkpd|ebook</text>
+  </g>
+</svg>
