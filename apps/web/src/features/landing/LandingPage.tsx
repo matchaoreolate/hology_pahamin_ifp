@@ -235,7 +235,7 @@ export function LandingPage() {
             </div>
             <div className="relative flex h-[400px] flex-1 items-end justify-center overflow-hidden rounded-[40px] bg-[#b8c3ff]/30 p-40 sm:p-12">
               <img
-                src="/landing/problem-illustration.png"
+                src="/landing/problem-illustration-2.png"
                 alt="Ilustrasi guru kewalahan menyiapkan materi ajar"
                 className="absolute inset-0 size-full object-cover"
               />
