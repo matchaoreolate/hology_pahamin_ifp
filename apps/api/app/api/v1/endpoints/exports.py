@@ -33,7 +33,13 @@ async def download_lkpd_pdf(
             detail=f"Gagal mengonversi LKPD ke format PDF: {e}",
         )
 
-    filename = f"LKPD-{content.get('header', {}).get('topik', 'Materi')[:20].replace(' ', '_')}.pdf"
+    topik = (
+        content.get("meta", {}).get("topik")
+        or content.get("header", {}).get("topik")
+        or "Materi"
+    )
+    clean_topik = "".join(c for c in str(topik) if c.isalnum() or c in (" ", "_", "-"))[:25].strip().replace(" ", "_")
+    filename = f"LKPD-{clean_topik or 'Materi'}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

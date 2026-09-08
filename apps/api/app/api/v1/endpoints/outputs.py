@@ -6,7 +6,8 @@ Delegates to focused modular domain services:
 - RuntimeViewerService
 - FeedbackHandlerService
 """
-from typing import Any
+from typing import Any, Literal
+from pydantic import BaseModel, Field
 
 from fastapi import APIRouter
 
@@ -14,9 +15,19 @@ from app.api.deps import CurrentUser, DBSession
 from app.services.outputs.feedback_handler import FeedbackHandlerService
 from app.services.outputs.output_editor import OutputEditorService
 from app.services.outputs.output_viewer import OutputViewerService
+from app.services.outputs.presentation_transform import PresentationTransformService
 from app.services.outputs.runtime_viewer import RuntimeViewerService
 
 router = APIRouter(prefix="/projects", tags=["Generated Outputs"])
+
+
+class PresentationTransformRequest(BaseModel):
+    prompt: str = Field(min_length=2, description="Instruksi transformasi AI dari guru")
+    slide_index: int = Field(default=0, ge=0, description="Indeks slide yang menjadi fokus perubahan (0-indexed)")
+    mode: Literal["auto", "slide", "add_slide", "full"] = Field(
+        default="auto", description="Mode transformasi: auto, slide, add_slide, full"
+    )
+
 
 
 @router.get("/{project_id}/presentation")
@@ -61,6 +72,25 @@ async def update_output_content(
     return await OutputEditorService.update_content(
         db, project_id, current_user.id, output_type, payload
     )
+
+
+@router.post("/{project_id}/presentation/ai-transform")
+async def ai_transform_presentation(
+    project_id: str,
+    payload: PresentationTransformRequest,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> dict[str, Any]:
+    """Transformasi konten presentasi interaktif menggunakan AI (Slide Edit / Add / Replace)."""
+    return await PresentationTransformService.transform_presentation(
+        db,
+        project_id,
+        current_user.id,
+        prompt=payload.prompt,
+        slide_index=payload.slide_index,
+        mode=payload.mode,
+    )
+
 
 
 @router.get("/{project_id}/runtime")

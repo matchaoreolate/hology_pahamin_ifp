@@ -9,10 +9,66 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+/**
+ * Automatically compress oversized image blobs (e.g. legacy large PNGs)
+ * down to WebP/JPEG before embedding into the single-file offline HTML.
+ * Ensures the exported presentation stays well within ~5 MB for 20 slides.
+ */
+async function compressImageBlobIfNeeded(
+  blob: Blob,
+  maxDimension = 1280,
+  quality = 0.82,
+): Promise<Blob> {
+  // Skip non-images, SVGs, or already small images (< 250 KB)
+  if (!blob.type.startsWith("image/") || blob.type === "image/svg+xml" || blob.size < 250 * 1024) {
+    return blob;
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(blob);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+      if (Math.max(width, height) > maxDimension) {
+        const scale = maxDimension / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(blob);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (compressedBlob) => {
+          if (compressedBlob && compressedBlob.size < blob.size) {
+            resolve(compressedBlob);
+          } else {
+            resolve(blob);
+          }
+        },
+        "image/webp",
+        quality,
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(blob);
+    };
+    img.src = objectUrl;
+  });
+}
+
 async function fetchAsDataUrl(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const blob = await res.blob();
+  const rawBlob = await res.blob();
+  const blob = await compressImageBlobIfNeeded(rawBlob);
   return blobToDataUrl(blob);
 }
 

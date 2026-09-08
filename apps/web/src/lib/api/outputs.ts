@@ -59,6 +59,36 @@ export async function updateOutputContent<TContent = Record<string, unknown>>(
   return data.content;
 }
 
+export interface TransformPresentationPayload {
+  prompt: string;
+  slide_index: number;
+  mode?: "auto" | "slide" | "add_slide" | "full";
+}
+
+export interface TransformPresentationResponse {
+  project_id: string;
+  action: "modify" | "append" | "delete" | "replace";
+  message: string;
+  content: PresentationArtifact;
+  active_slide_index: number;
+}
+
+/**
+ * AI Transform for Interactive Presentation.
+ * Applies scoped slide edits or structural changes and returns the full PresentationArtifact snapshot.
+ */
+export async function transformPresentationAI(
+  projectId: string,
+  payload: TransformPresentationPayload,
+): Promise<TransformPresentationResponse> {
+  const { data } = await apiClient.post<TransformPresentationResponse>(
+    `/projects/${projectId}/presentation/ai-transform`,
+    payload,
+  );
+  return data;
+}
+
+
 /** Authenticated teacher runtime for IFP TV — unwraps straight to the artifact. */
 export async function getRuntime(projectId: string): Promise<PresentationArtifact> {
   const { data } = await apiClient.get<RuntimeResponse>(`/projects/${projectId}/runtime`);
